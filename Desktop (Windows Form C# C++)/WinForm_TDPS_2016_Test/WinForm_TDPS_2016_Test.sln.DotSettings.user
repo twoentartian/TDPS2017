@@ -1,0 +1,10 @@
+﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+	<s:String x:Key="/Default/Environment/AssemblyExplorer/XmlDocument/@EntryValue">&lt;AssemblyExplorer&gt;&#xD;
+  &lt;Assembly Path="D:\TYD\C Program\WinForm_TDPS_2016_Test\packages\EmguCV.3.1.0.1\lib\net30\Emgu.CV.World.dll" /&gt;&#xD;
+&lt;/AssemblyExplorer&gt;</s:String>
+	<s:String x:Key="/Default/Environment/ContinuousTesting/PersistentDataLocation/@EntryValue">C:\Users\twoen\AppData\Local\Temp\JetBrains\ContinuousTesting\3f3f9526-f6e4-4b29-952f-1b1cea02f0b6</s:String>
+	<s:String x:Key="/Default/Environment/ContinuousTesting/SnapshotLocation/@EntryValue">C:\Users\twoen\AppData\Local\Temp\ssm.Huxonap.tmp</s:String>
+	
+	
+	
+	</wpf:ResourceDictionary>
