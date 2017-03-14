@@ -1,6 +1,6 @@
-C:\Users\tyd\AppData\Local\Temp\VMBuilds\Arduino_TDPS_2017\nano_atmega328\Release\Arduino_TDPS_2017.cpp.o: \
- C:\Users\tyd\AppData\Local\Temp\VMBuilds\Arduino_TDPS_2017\nano_atmega328\Release\Arduino_TDPS_2017.cpp \
- C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/arduino.h \
+C:\Users\tyd\AppData\Local\Temp\VMBuilds\Arduino_TDPS_2017\nano_atmega328\Release\Motor.cpp.o: \
+ C:\Users\tyd\AppData\Local\Temp\VMBuilds\Arduino_TDPS_2017\nano_atmega328\Release\Motor.cpp \
+ C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/Arduino.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/binary.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/WCharacter.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/WString.h \
@@ -12,6 +12,5 @@ C:\Users\tyd\AppData\Local\Temp\VMBuilds\Arduino_TDPS_2017\nano_atmega328\Releas
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/Arduino.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\variants\eightanaloginputs/pins_arduino.h \
  C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\variants\eightanaloginputs/../standard/pins_arduino.h \
- C:\Program\ Files\ (x86)\Arduino\hardware\arduino\avr\cores\arduino/Arduino.h \
- C:\Users\tyd\AppData\Local\Temp\VMBuilds\Arduino_TDPS_2017\nano_atmega328\Release\Ini.h \
- C:\Users\tyd\AppData\Local\Temp\VMBuilds\Arduino_TDPS_2017\nano_atmega328\Release\Motor.h
+ C:\Users\tyd\AppData\Local\Temp\VMBuilds\Arduino_TDPS_2017\nano_atmega328\Release\Motor.h \
+ C:\Users\tyd\AppData\Local\Temp\VMBuilds\Arduino_TDPS_2017\nano_atmega328\Release\Ini.h

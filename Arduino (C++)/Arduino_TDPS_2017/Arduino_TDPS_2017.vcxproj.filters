@@ -16,10 +16,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Arduino_TDPS_2017.ino" />
+    <None Include="Ini.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.Arduino_TDPS_2017.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Motor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Motor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
