@@ -1,11 +1,16 @@
 #include "Arduino.h"
 #include "Motor.h"
 
-Motor::Motor(int argIn1, int argIn2, int argPwm)
+Motor::Motor(int argIn1, int argIn2, byte argPwm)
 {
+	pinMode(STBY, OUTPUT);
 	this->In1 = argIn1;
 	this->In2 = argIn2;
 	this->Pwm = argPwm;
+
+	pinMode(this->In1, OUTPUT);
+	pinMode(this->In2, OUTPUT);
+	pinMode(this->Pwm, OUTPUT);
 }
 
 Motor::~Motor()
@@ -13,9 +18,9 @@ Motor::~Motor()
 
 }
 
-void Motor::Move(Direction argDir, int argSpeed)
+void Motor::Move(Direction argDir, byte argSpeed)
 {
-	digitalWrite(STBY, HIGH); //disable standby  
+	digitalWrite(STBY, HIGH); //disable standby
 	if (argDir == Direction::Forward)
 	{
 		digitalWrite(In1, HIGH);
@@ -30,7 +35,6 @@ void Motor::Move(Direction argDir, int argSpeed)
 	{
 		//Never reach
 	}
-
 	analogWrite(Pwm, argSpeed);
 }
 
@@ -38,3 +42,12 @@ void Motor::Stop()
 {
 	digitalWrite(STBY, LOW);
 }
+
+void MotorPair::Init()
+{
+	motorA = Motor(AIN1, AIN2, PWMA);
+	motorB = Motor(BIN2, BIN2, PWMB);
+}
+
+Motor MotorPair::motorA(AIN1, AIN2, PWMA);
+Motor MotorPair::motorB(BIN2, BIN2, PWMB);

@@ -4,28 +4,32 @@
 
 #include "Arduino.h"
 #include "Ini.h"
+
 class Motor
 {
 public:
-	enum Direction
-	{
-		Forward = 0, Backward = 1
-	};
-
-	Motor(int argIn1, int argIn2, int argPwm);
+	Motor(int argIn1, int argIn2, byte argPwm);
 
 	~Motor();
 
 	//Speed: 1~255
-	void Move(Direction argDir, int argSpeed);
+	void Move(Direction argDir, byte argSpeed);
 
 	static void Stop();
 
 private:
 	int In1;
 	int In2;
-	int Pwm;
+	byte Pwm;
 };
 
+class MotorPair
+{
+public:
+	static void Init();
+
+	static Motor motorA;
+	static Motor motorB;
+};
 
 #endif // !MOTOR_H
