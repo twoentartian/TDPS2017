@@ -39,9 +39,10 @@ namespace WinForm_TDPS_2016_Test
 
 		public static void Debug1()
 		{
-			string debugPath = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "DEBUG" + Path.DirectorySeparatorChar + "DEBUG1.jpg";
+			string debugPath = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "DEBUG" + Path.DirectorySeparatorChar + "DEBUG3.jpg";
 			//LbpTextureAnalysisResult textureResult = Cv.LbpTextureAnalysis(debugPath);
 			Image<Rgb, Byte> rawImage = new Image<Rgb, byte>(debugPath);
+			Image<Rgb, Byte> rawimage = rawImage.Resize(480, 240, Inter.Linear);
 			double[] threshold1 = new double[]
 			{
 				200
@@ -50,7 +51,7 @@ namespace WinForm_TDPS_2016_Test
 			{
 				200,300,400
 			};
-			CannyTextureAnalysisResult textureAnalysisResult = Cv.AutoCannyTextureAnalysis(rawImage, threshold1, threshold2,0);
+			CannyTextureAnalysisResult textureAnalysisResult = Cv.AutoCannyTextureAnalysis(rawimage, threshold1, threshold2,0);
 			ZedGraphForm tempZedGraphForm = new ZedGraphForm(textureAnalysisResult.Data);
 			tempZedGraphForm.Show();
 			MessageBox.Show(textureAnalysisResult.Info);

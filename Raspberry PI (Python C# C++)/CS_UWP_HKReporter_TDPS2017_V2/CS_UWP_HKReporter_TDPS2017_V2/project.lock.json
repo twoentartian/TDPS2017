@@ -21958,15 +21958,15 @@
     "UAP,Version=v10.0": []
   },
   "packageFolders": {
-    "C:\\Users\\twoen\\.nuget\\packages\\": {}
+    "C:\\Users\\tyd\\.nuget\\packages\\": {}
   },
   "project": {
     "restore": {
-      "projectUniqueName": "D:\\TYD\\C Program\\CS_UWP_HKReporter_TDPS2017_V2\\CS_UWP_HKReporter_TDPS2017_V2\\CS_UWP_HKReporter_TDPS2017_V2.csproj",
+      "projectUniqueName": "D:\\Git\\TDPS2017\\Raspberry PI (Python C# C++)\\CS_UWP_HKReporter_TDPS2017_V2\\CS_UWP_HKReporter_TDPS2017_V2\\CS_UWP_HKReporter_TDPS2017_V2.csproj",
       "projectName": "CS_UWP_HKReporter_TDPS2017_V2",
-      "projectPath": "D:\\TYD\\C Program\\CS_UWP_HKReporter_TDPS2017_V2\\CS_UWP_HKReporter_TDPS2017_V2\\CS_UWP_HKReporter_TDPS2017_V2.csproj",
-      "projectJsonPath": "D:\\TYD\\C Program\\CS_UWP_HKReporter_TDPS2017_V2\\CS_UWP_HKReporter_TDPS2017_V2\\project.json",
-      "outputType": "UAP"
+      "projectPath": "D:\\Git\\TDPS2017\\Raspberry PI (Python C# C++)\\CS_UWP_HKReporter_TDPS2017_V2\\CS_UWP_HKReporter_TDPS2017_V2\\CS_UWP_HKReporter_TDPS2017_V2.csproj",
+      "projectJsonPath": "D:\\Git\\TDPS2017\\Raspberry PI (Python C# C++)\\CS_UWP_HKReporter_TDPS2017_V2\\CS_UWP_HKReporter_TDPS2017_V2\\project.json",
+      "projectStyle": "ProjectJson"
     },
     "dependencies": {
       "Microsoft.NETCore.UniversalWindowsPlatform": "5.2.2"

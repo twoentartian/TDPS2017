@@ -9,6 +9,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AForge.Video.DirectShow;
+using TcpIpFileManagerSpace;
+using TempFileManagerSpace;
 using WinForm_TDPS_2016_Test;
 
 namespace AForgeVideoSourceDevice
@@ -30,6 +32,33 @@ namespace AForgeVideoSourceDevice
 		private static FilterInfoCollection _videoDevices;
 
 		private static VideoCaptureDevice _videoSource;
+
+		public static string GetCurrentPicturePath()
+		{
+			if (State == NowState.Stop)
+			{
+				throw new VideoSourceDeviceNotWorking();
+			}
+			else if (State == NowState.LocalCamera)
+			{
+				FormMain fm = FormMain.GetInstance();
+				TempFileManager _tempFileManager = TempFileManager.GetInstance();
+				Image tempImage = fm.GetVideoSourcePlayer().GetCurrentVideoFrame();
+				string tempPath = _tempFileManager.AddTempFile(tempImage);
+				return tempPath;
+			}
+			else if (State == NowState.TcpIp)
+			{
+				TcpIpFileManager _tcpIpFileManager = TcpIpFileManager.GetInstance();
+				return _tcpIpFileManager.TcpIpFilePath;
+			}
+			else
+			{
+				//Never Reach
+				throw new LogicErrorException();
+			}
+			return null;
+		}
 
 		public static void Scan()
 		{

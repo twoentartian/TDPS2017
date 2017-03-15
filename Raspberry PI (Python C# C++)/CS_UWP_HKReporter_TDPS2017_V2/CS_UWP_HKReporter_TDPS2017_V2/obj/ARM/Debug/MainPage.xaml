@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid x:ConnectionId='1' Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"                          RequestedTheme="Dark">
+    <Grid x:ConnectionId='1' Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"                          RequestedTheme="Dark"                             >
         <CaptureElement x:ConnectionId='2' x:Name="_captureElement" HorizontalAlignment="Left" Height="398" VerticalAlignment="Top" Width="546" Margin="10,10,0,0"/>
         <TextBlock x:ConnectionId='3' x:Name="_textBoxConsole" HorizontalAlignment="Left" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top" Margin="10,413,0,0" Width="1260" Height="48" FontSize="36"/>
     </Grid>
