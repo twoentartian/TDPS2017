@@ -291,7 +291,7 @@ namespace WinForm_TDPS_2016_Test
 		/// Analyze the texture of image
 		/// </summary>
 		/// <param name="argPath"></param>
-		/// <returns></returns>
+		/// <returns></returns> 
 		public static LbpTextureAnalysisResult LbpTextureAnalysis(string argPath)
 		{
 			Image<Gray, Byte> img = new Image<Gray, byte>(argPath);
