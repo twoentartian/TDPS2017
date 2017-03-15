@@ -15,4 +15,9 @@ namespace WinForm_TDPS_2016_Test
 	{
 		
 	}
+
+	class VideoSourceDeviceNotWorking : ApplicationException
+	{
+		
+	}
 }

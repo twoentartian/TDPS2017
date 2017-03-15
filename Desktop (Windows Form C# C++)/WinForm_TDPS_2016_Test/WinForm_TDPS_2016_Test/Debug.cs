@@ -39,7 +39,7 @@ namespace WinForm_TDPS_2016_Test
 
 		public static void Debug1()
 		{
-			string debugPath = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "DEBUG" + Path.DirectorySeparatorChar + "DEBUG1.jpg";
+			string debugPath = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "DEBUG" + Path.DirectorySeparatorChar + "DEBUG2.jpg";
 			//LbpTextureAnalysisResult textureResult = Cv.LbpTextureAnalysis(debugPath);
 			Image<Rgb, Byte> rawImage = new Image<Rgb, byte>(debugPath);
 			double[] threshold1 = new double[]

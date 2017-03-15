@@ -134,9 +134,9 @@ namespace StateManagerSpace
 					FormMain.GetInstance().LabelUDP.Text = "UDP: Find client, waiting for data Info: " + info;
 				}
 			}
-			catch (Exception e)
+			catch (Exception)
 			{
-
+				throw;
 			}
 		}
 

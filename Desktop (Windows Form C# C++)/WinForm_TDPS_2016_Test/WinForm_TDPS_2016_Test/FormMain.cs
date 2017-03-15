@@ -26,9 +26,9 @@ namespace WinForm_TDPS_2016_Test
 {
 	public partial class FormMain : Form
 	{
-		private StateManager _stateManager;
-		private TempFileManager _tempFileManager;
-		private TcpIpFileManager _tcpIpFileManager;
+		private readonly StateManager _stateManager;
+		private readonly TempFileManager _tempFileManager;
+		private readonly TcpIpFileManager _tcpIpFileManager;
 		private Server _tcpIpServer;
 
 		#region Singleton
@@ -165,7 +165,20 @@ namespace WinForm_TDPS_2016_Test
 
 			pictureBox.Image = newBitmap;
 			*/
-
+			string tempPath = VideoSourceDevice.GetCurrentPicturePath();
+			Image<Rgb, Byte> rawImage = new Image<Rgb, byte>(tempPath);
+			double[] threshold1 = new double[]
+			{
+				200
+			};
+			double[] threshold2 = new double[]
+			{
+				200,300,400
+			};
+			CannyTextureAnalysisResult textureAnalysisResult = Cv.AutoCannyTextureAnalysis(rawImage, threshold1, threshold2, 0);
+			ZedGraphForm tempZedGraphForm = new ZedGraphForm(textureAnalysisResult.Data);
+			tempZedGraphForm.Show();
+			MessageBox.Show(textureAnalysisResult.Info);
 		}
 
 		private void buttonDebug_Click(object sender, EventArgs e)
