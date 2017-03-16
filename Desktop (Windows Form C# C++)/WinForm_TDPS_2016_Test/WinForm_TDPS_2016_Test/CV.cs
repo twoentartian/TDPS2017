@@ -151,13 +151,11 @@ namespace WinForm_TDPS_2016_Test
 	static class Cv
 	{
 		#region CV Arguements
-
 		public enum DetectMode
 		{
 			NoCircle,
 			IncludeCircle
 		}
-
 		#endregion
 
 		#region Func
@@ -298,6 +296,11 @@ namespace WinForm_TDPS_2016_Test
 			return LbpTextureAnalysis(img);
 		}
 
+		/// <summary>
+		/// Analyze the texture of image
+		/// </summary>
+		/// <param name="argImage"></param>
+		/// <returns></returns>
 		public static LbpTextureAnalysisResult LbpTextureAnalysis(Image<Gray,Byte> argImage)
 		{
 			byte[,,] rawImgData = argImage.Data;
@@ -387,6 +390,14 @@ namespace WinForm_TDPS_2016_Test
 			return AutoCannyTextureAnalysis(img, threshold1, threshold1, factorBetweenMinAndMax);
 		}
 
+		/// <summary>
+		/// Suggest value sets are threshold1=[200] threshold2=[200,300,400]
+		/// </summary>
+		/// <param name="argImage"></param>
+		/// <param name="threshold1"></param>
+		/// <param name="threshold2"></param>
+		/// <param name="factorBetweenMinAndMax"></param>
+		/// <returns></returns>
 		public static CannyTextureAnalysisResult AutoCannyTextureAnalysis(Image<Rgb,Byte> argImage, double[] threshold1, double[] threshold2, int factorBetweenMinAndMax = 3)
 		{
 			Image<Gray, Byte> cannyImg = new Image<Gray, byte>(argImage.Size);
@@ -432,6 +443,14 @@ namespace WinForm_TDPS_2016_Test
 			return bestCannyTextureAnalysisResult;
 		}
 
+		/// <summary>
+		/// Suggest value sets are threshold1=[200] threshold2=[200,300,400]
+		/// </summary>
+		/// <param name="argImage"></param>
+		/// <param name="threshold1"></param>
+		/// <param name="threshold2"></param>
+		/// <param name="factorBetweenMinAndMax"></param>
+		/// <returns></returns>
 		public static CannyTextureAnalysisResult AutoCannyTextureAnalysis(Image<Gray, Byte> argImage, double[] threshold1, double[] threshold2, int factorBetweenMinAndMax = 3)
 		{
 			Image<Gray, Byte> cannyImg = new Image<Gray, byte>(argImage.Size);
