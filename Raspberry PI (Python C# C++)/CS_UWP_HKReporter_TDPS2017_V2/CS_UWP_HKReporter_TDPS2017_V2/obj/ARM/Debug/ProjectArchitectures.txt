@@ -1,1 +1,0 @@
-D:\Git\TDPS2017\Raspberry PI (Python C# C++)\CS_UWP_HKReporter_TDPS2017_V2\CS_UWP_HKReporter_TDPS2017_V2\CS_UWP_HKReporter_TDPS2017_V2.csproj;arm
