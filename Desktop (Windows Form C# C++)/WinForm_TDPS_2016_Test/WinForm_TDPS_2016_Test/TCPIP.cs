@@ -53,29 +53,29 @@ namespace WinForm_TDPS_2016_TCPIP
 		}
 		#endregion
 
-		private IPAddress[] localAddresses;
-		private IPAddress localIpV4Address;
-		private string localName;
-		private Socket serverSocket;
-		private Socket clientSocket;
+		private IPAddress[] _localAddresses;
+		private IPAddress _localIpV4Address;
+		private string _localName;
+		private Socket _serverSocket;
+		private Socket _clientSocket;
 
-		public Socket ClientSocket => clientSocket;
+		public Socket ClientSocket => _clientSocket;
 
-		private byte[] result = new byte[1024];
+		private byte[] _result = new byte[1024];
 
 		private void Init()
 		{
-			localName = Dns.GetHostName();
-			localAddresses = Dns.GetHostAddresses(localName);
+			_localName = Dns.GetHostName();
+			_localAddresses = Dns.GetHostAddresses(_localName);
 			bool multiResult = false;
-			foreach (var singleAddress in localAddresses)
+			foreach (var singleAddress in _localAddresses)
 			{
 				if (singleAddress.AddressFamily == AddressFamily.InterNetwork)
 				{
 					if (!multiResult)
 					{
 						multiResult = true;
-						localIpV4Address = singleAddress;
+						_localIpV4Address = singleAddress;
 					}
 					else
 					{
@@ -83,9 +83,9 @@ namespace WinForm_TDPS_2016_TCPIP
 					}
 				}
 			}
-			serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			serverSocket.Bind(new IPEndPoint(localIpV4Address, _serverPort));  //绑定IP地址：端口  
-			serverSocket.Listen(10);    //设定最多10个排队连接请求  
+			_serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			_serverSocket.Bind(new IPEndPoint(_localIpV4Address, _serverPort));  //绑定IP地址：端口  
+			_serverSocket.Listen(10);    //设定最多10个排队连接请求  
 			StateManager tempManager = StateManager.GetInstance();
 			tempManager.Udp.SetUdpClose("Init");
 		}
@@ -93,7 +93,7 @@ namespace WinForm_TDPS_2016_TCPIP
 		public void StartListen()
 		{
 			StateManager tempManager = StateManager.GetInstance();
-			tempManager.Udp.SetUdpWaitForConnection($"Listenning {serverSocket.LocalEndPoint.ToString()}");
+			tempManager.Udp.SetUdpWaitForConnection($"Listenning {_serverSocket.LocalEndPoint.ToString()}");
 			Thread listenThread = new Thread(ListenClientConnect);
 			listenThread.IsBackground = true;
 			listenThread.Start();
@@ -107,11 +107,11 @@ namespace WinForm_TDPS_2016_TCPIP
 			while (true)
 			{
 				StateManager tempManager = StateManager.GetInstance();
-				clientSocket = serverSocket.Accept();
+				_clientSocket = _serverSocket.Accept();
 				tempManager.Udp.SetUdpFindClient();
 				Thread receiveThread = new Thread(ReceiveMessage);
 				receiveThread.IsBackground = true;
-				receiveThread.Start(clientSocket);
+				receiveThread.Start(_clientSocket);
 			}
 		}
 
@@ -140,7 +140,7 @@ namespace WinForm_TDPS_2016_TCPIP
 			//Close current connection and then listen
 
 			StateManager tempManager = StateManager.GetInstance();
-			tempManager.Udp.SetUdpWaitForConnection($"Listenning {serverSocket.LocalEndPoint.ToString()}");
+			tempManager.Udp.SetUdpWaitForConnection($"Listenning {_serverSocket.LocalEndPoint.ToString()}");
 		}
 	}
 
@@ -240,7 +240,6 @@ namespace WinForm_TDPS_2016_TCPIP
 		}
 	}
 
-
 	class BroadcastService
 	{
 		#region Singleton
@@ -271,13 +270,13 @@ namespace WinForm_TDPS_2016_TCPIP
 		private IPAddress[] _localAddresses;
 		private IPAddress _localIpV4Address;
 		private IPEndPoint _localIpEndPoint;
-		private IPEndPoint _remoteIpEndPoint;
+		private IPEndPoint _remoteBoradcastIpEndPoint;
 		private UdpClient _localUdpClient;
 
 		private byte[] _contentBytes;
 		private Timer _broadcastTimer;
 
-		private string _separator = "#";
+		public const string Separator = "#";
 
 		private void Init()
 		{
@@ -307,13 +306,9 @@ namespace WinForm_TDPS_2016_TCPIP
 			}
 
 			//Generate the broadcast info
-			string Content = ("Server" + _separator + _localIpV4Address + _separator + Server.GetInstance().ServerPort + _separator + Environment.NewLine).ToString();
+			string Content = ("Server" + Separator + _localIpV4Address + Separator + Server.GetInstance().ServerPort + Separator + Environment.NewLine).ToString();
 			_contentBytes = Encoding.ASCII.GetBytes(Content);
-			_remoteIpEndPoint = new IPEndPoint(IPAddress.Broadcast, BroadcastPort);
-			//Local broadcast
-			byte[] addr = _localIpV4Address.GetAddressBytes();
-			addr[3] = 255;
-			_remoteIpEndPoint.Address = new IPAddress(addr);
+			_remoteBoradcastIpEndPoint = new IPEndPoint(IPAddress.Broadcast, BroadcastPort);
 
 			//Set the local UDP Client
 			_localIpEndPoint = new IPEndPoint(_localIpV4Address, localPort);
@@ -322,7 +317,12 @@ namespace WinForm_TDPS_2016_TCPIP
 
 		private void BroadcastTimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
 		{
-			_localUdpClient.Send(_contentBytes, _contentBytes.Length, _remoteIpEndPoint);
+			_localUdpClient.Send(_contentBytes, _contentBytes.Length, _remoteBoradcastIpEndPoint);
+		}
+
+		public void BroadcastToInterNetwork(byte[] argBytes)
+		{
+			_localUdpClient.Send(argBytes, argBytes.Length, _remoteBoradcastIpEndPoint);
 		}
 
 		public void StartBroadcast()

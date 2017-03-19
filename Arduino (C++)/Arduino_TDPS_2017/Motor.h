@@ -12,10 +12,12 @@ public:
 
 	~Motor();
 
-	//Speed: 1~255
+	//Speed: 1~254
 	void Move(Direction argDir, byte argSpeed);
 
-	static void Stop();
+	void Stop();
+
+	static void AllStop();
 
 private:
 	int In1;

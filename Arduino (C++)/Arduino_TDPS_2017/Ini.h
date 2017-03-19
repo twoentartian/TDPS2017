@@ -2,23 +2,25 @@
 #ifndef INI_H
 #define INI_H
 
+
 #define DEBUG_SERIAL
+
 #define BAUD_SERIAL		115200
 
 //motor A connected between A01 and A02
 //motor B connected between B01 and B02
 
-#define STBY		6		//Stand by control
+#define STBY		8		//Stand by control
 
 //Motor A
 #define PWMA		9		//Speed control
-#define AIN1		8		//Direction
-#define AIN2		7		//Direction
+#define AIN1		11		//Direction
+#define AIN2		12		//Direction
 
 //Motor B
 #define PWMB		10		//Speed control
-#define BIN1		11		//Direction
-#define BIN2		12		//Direction
+#define BIN1		5		//Direction
+#define BIN2		4		//Direction
 
 
 //Serial Port

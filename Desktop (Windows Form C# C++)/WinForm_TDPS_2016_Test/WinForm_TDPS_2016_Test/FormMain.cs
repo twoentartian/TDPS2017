@@ -190,6 +190,12 @@ namespace WinForm_TDPS_2016_Test
 		{
 			Debug.Debug2();
 		}
+
+		private void buttonOpenArduinoPanel_Click(object sender, EventArgs e)
+		{
+			FormArduinoControlPanel arduinoForm = FormArduinoControlPanel.GetInstance();
+			arduinoForm.Show();
+		}
 		#endregion
 
 		#region Label

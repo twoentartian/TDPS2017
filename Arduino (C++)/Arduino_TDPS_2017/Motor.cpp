@@ -35,10 +35,19 @@ void Motor::Move(Direction argDir, byte argSpeed)
 	{
 		//Never reach
 	}
+
 	analogWrite(Pwm, argSpeed);
 }
 
 void Motor::Stop()
+{
+	digitalWrite(In1, LOW);
+	digitalWrite(In2, LOW);
+	analogWrite(Pwm, 0);
+}
+
+
+void Motor::AllStop()
 {
 	digitalWrite(STBY, LOW);
 }
@@ -46,8 +55,8 @@ void Motor::Stop()
 void MotorPair::Init()
 {
 	motorA = Motor(AIN1, AIN2, PWMA);
-	motorB = Motor(BIN2, BIN2, PWMB);
+	motorB = Motor(BIN1, BIN2, PWMB);
 }
 
 Motor MotorPair::motorA(AIN1, AIN2, PWMA);
-Motor MotorPair::motorB(BIN2, BIN2, PWMB);
+Motor MotorPair::motorB(BIN1, BIN2, PWMB);

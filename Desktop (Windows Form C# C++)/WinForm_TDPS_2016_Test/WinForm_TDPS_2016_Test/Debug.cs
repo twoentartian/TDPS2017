@@ -35,8 +35,6 @@ namespace WinForm_TDPS_2016_Test
 			IVM.ShowPicture(new Image<Bgr, Byte>(img));
 		}
 
-		private static Bitmap _resultImage;
-
 		public static void Debug1()
 		{
 			string debugPath = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "DEBUG" + Path.DirectorySeparatorChar + "DEBUG3.jpg";

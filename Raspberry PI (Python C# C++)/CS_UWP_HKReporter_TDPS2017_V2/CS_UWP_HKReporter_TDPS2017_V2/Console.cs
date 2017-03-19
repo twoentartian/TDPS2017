@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
 
-namespace CS_UWP_HKRepoter_TDPS2017_Console
+namespace CS_UWP_HKReporter_TDPS2017_V2
 {
 	class Console
 	{

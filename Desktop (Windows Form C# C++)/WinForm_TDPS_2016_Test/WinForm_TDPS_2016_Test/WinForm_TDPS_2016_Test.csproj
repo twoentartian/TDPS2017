@@ -109,6 +109,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArduinoControlPanel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ArduinoControlPanel.Designer.cs">
+      <DependentUpon>ArduinoControlPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="CV.cs" />
     <Compile Include="Debug.cs" />
     <Compile Include="Exception.cs" />
@@ -134,6 +140,9 @@
     <Compile Include="ZedGraphForm.Designer.cs">
       <DependentUpon>ZedGraphForm.cs</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="ArduinoControlPanel.resx">
+      <DependentUpon>ArduinoControlPanel.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FormMain.resx">
       <DependentUpon>FormMain.cs</DependentUpon>
     </EmbeddedResource>

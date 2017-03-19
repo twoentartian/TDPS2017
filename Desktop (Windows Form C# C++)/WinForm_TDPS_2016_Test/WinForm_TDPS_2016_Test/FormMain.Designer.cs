@@ -40,6 +40,7 @@
 			this.pictureBoxTcpIp = new System.Windows.Forms.PictureBox();
 			this.textBoxValue1 = new System.Windows.Forms.TextBox();
 			this.textBoxValue2 = new System.Windows.Forms.TextBox();
+			this.buttonOpenArduinoPanel = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBoxTcpIp)).BeginInit();
 			this.SuspendLayout();
@@ -152,11 +153,22 @@
 			this.textBoxValue2.Size = new System.Drawing.Size(75, 20);
 			this.textBoxValue2.TabIndex = 13;
 			// 
+			// buttonOpenArduinoPanel
+			// 
+			this.buttonOpenArduinoPanel.Location = new System.Drawing.Point(990, 13);
+			this.buttonOpenArduinoPanel.Name = "buttonOpenArduinoPanel";
+			this.buttonOpenArduinoPanel.Size = new System.Drawing.Size(123, 23);
+			this.buttonOpenArduinoPanel.TabIndex = 14;
+			this.buttonOpenArduinoPanel.Text = "Open Arduino Panel";
+			this.buttonOpenArduinoPanel.UseVisualStyleBackColor = true;
+			this.buttonOpenArduinoPanel.Click += new System.EventHandler(this.buttonOpenArduinoPanel_Click);
+			// 
 			// FormMain
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1241, 407);
+			this.Controls.Add(this.buttonOpenArduinoPanel);
 			this.Controls.Add(this.textBoxValue2);
 			this.Controls.Add(this.textBoxValue1);
 			this.Controls.Add(this.pictureBoxTcpIp);
@@ -197,6 +209,7 @@
 		private System.Windows.Forms.PictureBox pictureBoxTcpIp;
 		private System.Windows.Forms.TextBox textBoxValue1;
 		private System.Windows.Forms.TextBox textBoxValue2;
+		private System.Windows.Forms.Button buttonOpenArduinoPanel;
 	}
 }
 

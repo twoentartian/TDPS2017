@@ -1,29 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net.Sockets;
-using System.Net.WebSockets;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
-using Windows.Devices.Printers;
-using Windows.Foundation;
-using Windows.Graphics.Display;
 using Windows.Graphics.Imaging;
 using Windows.Media;
 using Windows.Media.Capture;
-using Windows.Media.Devices;
-using Windows.Storage;
-using Windows.UI.Xaml;
-using CS_UWP_HKRepoter_TDPS2017_TcpIpManager;
 using Windows.Media.MediaProperties;
-using Windows.Storage.FileProperties;
+using Windows.Storage;
 using Windows.Storage.Streams;
-using Windows.UI.Xaml.Media.Imaging;
-using CS_UWP_HKRepoter_TDPS2017_Exception;
+using Windows.UI.Xaml;
 
-namespace CS_UWP_HKRepoter_TDPS2017_Camera
+namespace CS_UWP_HKReporter_TDPS2017_V2
 {
 	class Camera
 	{
@@ -66,7 +51,7 @@ namespace CS_UWP_HKRepoter_TDPS2017_Camera
 			await _camera.InitializeAsync();
 		}
 
-		public async void StartSendingServiceAsync()
+		public void StartSendingServiceAsync()
 		{
 			_camera.StartPreviewAsync();
 			_sendPhotoTimer.Start();
@@ -80,13 +65,13 @@ namespace CS_UWP_HKRepoter_TDPS2017_Camera
 
 		protected bool GetPhotoTaskOnTime = false;
 
-		private Task listenTask;
+		private Task _listenTask;
 
 		private async void TimerTick(object sender, object e)
 		{
-			if (listenTask?.IsCompleted == false)
+			if (_listenTask?.IsCompleted == false)
 			{
-				listenTask = null;
+				_listenTask = null;
 				return;
 			}
 			if (GetPhotoTaskOnTime == false)
@@ -94,7 +79,7 @@ namespace CS_UWP_HKRepoter_TDPS2017_Camera
 				GetPhotoTaskOnTime = true;
 				if (_tcpIpManager.State == TcpIpManager.NowState.NotFindServer)
 				{
-					listenTask =  _tcpIpManager.ListenAsync();
+					_listenTask =  _tcpIpManager.ListenAsync();
 					GetPhotoTaskOnTime = false;
 				}
 				else if (_tcpIpManager.State == TcpIpManager.NowState.FindServer)

@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CS_UWP_HKRepoter_TDPS2017_Exception
+namespace CS_UWP_HKReporter_TDPS2017_V2
 {
 	class MultiIpV4AddressException : Exception
 	{
@@ -12,6 +8,11 @@ namespace CS_UWP_HKRepoter_TDPS2017_Exception
 	}
 
 	class LogicErrorException : Exception
+	{
+		
+	}
+
+	class SerialPortNotInitException : Exception
 	{
 		
 	}

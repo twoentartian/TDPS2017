@@ -12,13 +12,14 @@ CommandResult::~CommandResult()
 
 }
 
-MotorResult::MotorResult(Direction argMotorDirection1, byte argMotorSpeed1, Direction argMotorDirection2, byte argMotorSpeed2) : CommandResult(true)
+MotorResult::MotorResult(Direction argMotorDirection1, byte argMotorSpeed1, Direction argMotorDirection2, byte argMotorSpeed2, int argTime) : CommandResult(true)
 {
 	CurrentResult = ResultState::MotorResultState;
 	motorDirection1 = argMotorDirection1;
 	motorDirection2 = argMotorDirection2;
 	motorSpeed1 = argMotorSpeed1;
 	motorSpeed2 = argMotorSpeed2;
+	time = argTime;
 }
 
 SerialPort::~SerialPort()
@@ -36,26 +37,51 @@ CommandResult SerialPort::CheckAvailable()
 	while (Serial.available())
 	{
 		int data = Serial.read();
-		if (data == 0x00)
+		if (data == 0xFF)
 		{
 			//Motor Data Pack
 			if (buffer[0] == 0x01)
 			{
-				if (bufferLoc != 5)
+				if (bufferLoc != 7)
 				{
 					//Error
+					Serial.print("ERROR: Bufferloc != 7 ");
+					Serial.print("BufferLoc = ");
+					Serial.println(bufferLoc);
+					
 					Error::Stop();
 				}
-				Direction dir1, dir2;
-				if (buffer[1] == 0x01) { dir1 = Forward; }
-				else { dir1 == Backward; }
-				if (buffer[3] == 0x01) { dir2 = Forward; }
-				else { dir2 == Backward; }
+				Direction dir1 = {}, dir2 = {};
+				if (buffer[1] == 0x00) { dir1 = Forward; }
+				else if (buffer[1] == 0x01)
+				{
+					dir1 = Backward;
+				}
+				else
+				{
+					Error::Stop();
+				}
+				if (buffer[3] == 0x00) { dir2 = Forward; }
+				else if (buffer[3] == 0x01)
+				{
+					dir2 = Backward;
+				}
+				else
+				{
+					Error::Stop();
+				}
 
 				MotorPair::motorA.Move(dir1, buffer[2]);
 				MotorPair::motorB.Move(dir2, buffer[4]);
 
-				MotorResult returnResult(dir1, buffer[2], dir2, buffer[4]);
+				unsigned int time = buffer[5] << 8 ^ buffer[6];
+				delay(time);
+				MotorPair::motorA.Stop();
+				MotorPair::motorB.Stop();
+				Motor::AllStop();
+
+				MotorResult returnResult(dir1, buffer[2], dir2, buffer[4], time);
+				Serial.println("Finished");
 #ifdef DEBUG_SERIAL
 				Serial.print("Motor: ");
 				Serial.print((int)dir1);
@@ -64,7 +90,9 @@ CommandResult SerialPort::CheckAvailable()
 				Serial.print(" ");
 				Serial.print((int)dir2);
 				Serial.print(" ");
-				Serial.println((int)buffer[4]);
+				Serial.print((int)buffer[4]);
+				Serial.print(" ");
+				Serial.println(time);
 #endif
 				bufferLoc = 0;
 				for (int i = 0; i < BUFFER_SIZE; i++)

@@ -1,17 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
-using CS_UWP_HKReporter_TDPS2017_V2;
-using CS_UWP_HKRepoter_TDPS2017_Exception;
-using CS_UWP_HKRepoter_TDPS2017_Console;
 
-namespace CS_UWP_HKRepoter_TDPS2017_TcpIpManager
+namespace CS_UWP_HKReporter_TDPS2017_V2
 {
 	class TcpIpManager
 	{
@@ -42,14 +38,33 @@ namespace CS_UWP_HKRepoter_TDPS2017_TcpIpManager
 		private Socket _localUdpSocket;
 		private IPEndPoint _remoteIpEndPoint;
 
-		private string[] separator = new string[]
+		private readonly string[] _separator = new string[]
 		{
 			"#"
 		};
 
 		private NowState _state = NowState.NotFindServer;
 
-		public NowState State => _state;
+		public NowState State
+		{
+			get { return _state; }
+			set
+			{
+				_state = value;
+				if (value == NowState.FindServer)
+				{
+					StartTimerUdpService();
+				}
+				else if (value == NowState.NotFindServer)
+				{
+					StopTimerUdpService();
+				}
+				else
+				{
+					throw new LogicErrorException();
+				}
+			}
+		}
 
 		public enum NowState
 		{
@@ -100,22 +115,30 @@ namespace CS_UWP_HKRepoter_TDPS2017_TcpIpManager
 				Flush();
 				_localUdpSocket.ReceiveFrom(buffer, ref remoteEndPoint);
 				string data = Encoding.ASCII.GetString(buffer);
-				string[] parts = data.Split(separator, StringSplitOptions.RemoveEmptyEntries);
+				string[] parts = data.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
 
 				if (parts[0] == "Server")
 				{
 					_remoteIpEndPoint = new IPEndPoint(IPAddress.Parse(parts[1]), Convert.ToInt32(parts[2]));
 					break;
 				}
+				else if (parts[0] == "Motor")
+				{
+
+				}
+				else
+				{
+					throw new LogicErrorException();
+				}
 			}
 
 			//Set State Find Sever
-			_state = NowState.FindServer;
+			State = NowState.FindServer;
 			Console console = Console.GetInstance();
 			console.Display("Find server: " + _remoteIpEndPoint);
 		}
 
-		public async void SendPictureAsync(string path)
+		public void SendPictureAsync(string path)
 		{
 			long contentLen = 0;
 
@@ -127,7 +150,7 @@ namespace CS_UWP_HKRepoter_TDPS2017_TcpIpManager
 			catch (Exception)
 			{
 				//Set State Not Find Server
-				_state = NowState.NotFindServer;
+				State = NowState.NotFindServer;
 				Console console = Console.GetInstance();
 				console.Display("Lost Server");
 				return;
@@ -160,6 +183,65 @@ namespace CS_UWP_HKRepoter_TDPS2017_TcpIpManager
 				byte[] buffer = new byte[256];
 				EndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
 				_localUdpSocket.ReceiveFrom(buffer, ref remoteEndPoint);
+			}
+		}
+
+		private Timer _udpTimer;
+
+		public void StartTimerUdpService()
+		{
+			TimerCallback udpTimerCallback = UdpTimerCallback;
+			_udpTimer = new Timer(udpTimerCallback, null, 0, 100);
+		}
+
+		public void StopTimerUdpService()
+		{
+			_udpTimer.Dispose();
+		}
+
+		private void UdpTimerCallback(object state)
+		{
+			byte[] dataSend = Encoding.ASCII.GetBytes("TEST");
+			EndPoint ep = new IPEndPoint(IPAddress.Broadcast, 0);
+			_localUdpSocket.SendTo(dataSend, ep);
+			byte[] buffer = new byte[256];
+			EndPoint remoteEndPoint = new IPEndPoint(IPAddress.Any, 0);
+			Flush();
+			_localUdpSocket.ReceiveFrom(buffer, ref remoteEndPoint);
+			string data = Encoding.ASCII.GetString(buffer);
+			string[] parts = data.Split(_separator, StringSplitOptions.RemoveEmptyEntries);
+			 if (parts[0] == "Motor")
+			{
+				byte dirA, dirB, speedA, speedB, time1, time2;
+				try
+				{
+					dirA = Convert.ToByte(parts[1]);
+					speedA = Convert.ToByte(parts[2]);
+					dirB = Convert.ToByte(parts[3]);
+					speedB = Convert.ToByte(parts[4]);
+					int time = Convert.ToInt32(parts[5]);
+					time1 = (byte)(time / 0xff);
+					time2 = (byte)(time % 0xff);
+				}
+				catch (Exception e)
+				{
+					Debug.WriteLine("Format error");
+					return;
+				}
+				SerialRaspberry st = SerialRaspberry.GetInstance();
+				byte[] tempBytes = new byte[]
+				{
+					0x01, dirA, speedA, dirB, speedB, time1, time2, 0xFF
+				};
+				st.Write(tempBytes);
+			}
+			else if (parts[0] == "Server")
+			{
+				
+			}
+			else
+			{
+				throw new LogicErrorException();
 			}
 		}
 	}

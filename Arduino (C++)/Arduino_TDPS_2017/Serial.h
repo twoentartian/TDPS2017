@@ -1,8 +1,8 @@
 //	Serial buffer size:10 bytes
 //	Flush buffer after every pack acquiring
 //	Format:
-//			|->	Motor		0x01 (1 byte)	A motor (2 byte)						B motor (2 bytes)						0x00 (1 byte)
-//						|->		Start Sign			0x01 0x02(Direction) PWM		0x01 0x02(Direction) PWM		End sign
+//			|->	Motor		0x01 (1 byte)	A motor (2 byte)						B motor (2 bytes)						Time	(2 bytes)			0xFF (1 byte)
+//						|->		Start Sign			0x00 0x01(Direction) PWM		0x00 0x01(Direction) PWM										End sign
 //
 //	Motor moves only when both of them get their packs.
 #pragma once
@@ -33,10 +33,11 @@ public:
 class MotorResult : public CommandResult
 {
 public:
-	MotorResult(Direction argMotorDirection1, byte argMotorSpeed1, Direction argMotorDirection2, byte argMotorSpeed2);
+	MotorResult(Direction argMotorDirection1, byte argMotorSpeed1, Direction argMotorDirection2, byte argMotorSpeed2, int argTime);
 
 	int motorSpeed1;
 	int motorSpeed2;
+	int time;
 	Direction motorDirection1;
 	Direction motorDirection2;
 };
