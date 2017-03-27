@@ -221,7 +221,6 @@ namespace WinForm_TDPS_2016_TCPIP
 				TcpIpFileManager tempFileManager = TcpIpFileManager.GetInstance();
 				tempFileManager.AddTempFile(img);
 				AForgeVideoSourceDevice.VideoSourceDevice.FlashTcpIpImage();
-				int i = clientSocket.Available;
 			}
 			catch (Exception ex)
 			{
