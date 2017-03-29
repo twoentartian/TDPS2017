@@ -107,13 +107,16 @@ namespace TcpUdpManagerNamespace
 		/// <param name="argListenTask"></param>
 		public void InitUdp(int argPort, ListenTaskDelegate argListenTask)
 		{
-			if (_hostName == null|| _hostIpAddress == null)
+			if (_hostName == null || _hostIpAddress == null)
 			{
 				InitHost();
 			}
 
-			_hostIpEndPoint = new IPEndPoint(_hostIpAddress, argPort);
+			_hostIpEndPoint = new IPEndPoint(IPAddress.Any, argPort);
 			_hostUdpClient = new UdpClient(_hostIpEndPoint);
+			_hostUdpClient.EnableBroadcast = true;
+			byte[] tempData = Encoding.ASCII.GetBytes ("TSET");
+			_hostUdpClient.Send (tempData, tempData.Length, new IPEndPoint (IPAddress.Broadcast, 15000));
 			_receiveDelegate = argListenTask;
 
 			//Add listen thread

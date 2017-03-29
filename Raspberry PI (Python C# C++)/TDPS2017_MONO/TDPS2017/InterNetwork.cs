@@ -16,7 +16,6 @@ namespace Cs_Mono_RaspberryPi
 	class InterNetwork
 	{
 		#region UDP
-
 		public static UdpManager.ListenTaskDelegate UdpListenTaskDelegate = UdpListenTask;
 
 		/// <summary>
@@ -64,6 +63,7 @@ namespace Cs_Mono_RaspberryPi
 		#endregion
 
 		#region TCP
+		private static int PackLength = 4096;
 
 		public static TcpManager.ListenTaskDelegate TcpListenTaskDelegate = TcpListenTask;
 
@@ -78,8 +78,6 @@ namespace Cs_Mono_RaspberryPi
 
 		public static TimerCallback SendPictureTimerCallback = SendPictureTimerCallbackFunc;
 		private static bool _sendPictureTimerCallbackFuncRunSign = false;
-		//TODO: delete temp in future
-		private static bool temp = false;
 		private static void SendPictureTimerCallbackFunc(object state)
 		{
 			if (_sendPictureTimerCallbackFuncRunSign)
@@ -87,18 +85,9 @@ namespace Cs_Mono_RaspberryPi
 				return;
 			}
 			_sendPictureTimerCallbackFuncRunSign = true;
-			//TODO: add camera function to get the picture path
-			string path;
-			if (temp)
-			{
-				path = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "1.jpg";
-			}
-			else
-			{
-				path = Environment.CurrentDirectory + Path.DirectorySeparatorChar + "2.jpg";
-			}
-			temp = !temp;
 
+			RaspberryCamera tempCamera = RaspberryCamera.GetInstance ();
+			byte[] imgData = tempCamera.GetPictureFromStreaming ();
 
 			StateManager tempStateManager = StateManager.GetInstance();
 			TcpManager tempTcpManager = TcpManager.GetInstance();
@@ -113,30 +102,36 @@ namespace Cs_Mono_RaspberryPi
 				tempStateManager.FindServer = false;
 				return;
 			}
-			FileStream fs = new FileStream(path, FileMode.Open);
-			long contentLen = fs.Length;
+			long contentLen = imgData.LongLength;
 			try
 			{
 				tempTcpManager.HostTcpClient.Client.Send(BitConverter.GetBytes(contentLen));
-				while (true)
+				for(long packNumber = 0; packNumber < imgData.LongLength/PackLength; packNumber++)
 				{
-					byte[] bits = new byte[256];
-					int r = fs.Read(bits, 0, bits.Length);
-					if (r <= 0) break;
-					tempTcpManager.HostTcpClient.Client.Send(bits, r, SocketFlags.None);
+					byte[] pack = new byte[PackLength];
+					for(int i = 0; i < PackLength; i++)
+					{
+						pack[i] = imgData[packNumber*PackLength + i];
+					}
+					tempTcpManager.HostTcpClient.Client.Send(pack);
 				}
+				//Send last pack
+				int lastPackLength = (int)(imgData.LongLength - (imgData.LongLength/PackLength) * PackLength);
+				byte[] lastPack = new byte[lastPackLength];
+				for (int i = 0; i < lastPackLength; i++)
+				{
+					lastPack[i] = imgData[imgData.LongLength - lastPackLength + i];
+				}
+				tempTcpManager.HostTcpClient.Client.Send(lastPack); 
+
 			}
 			catch (Exception e)
 			{
 				Console.WriteLine(e);
 				_sendPictureTimerCallbackFuncRunSign = false;
 				tempStateManager.FindServer = false;
-				fs.Flush();
-				fs.Dispose();
 				return;
 			}
-			fs.Flush();
-			fs.Dispose();
 			_sendPictureTimerCallbackFuncRunSign = false;
 		}
 

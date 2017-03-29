@@ -36,15 +36,18 @@ namespace Cs_Mono_RaspberryPi
 			{
 				_findServer = value;
 				TimerManager tempTimerManager = TimerManager.GetInstance();
+				RaspberryCamera tempCamera = RaspberryCamera.GetInstance ();
 				if (value)
 				{
 					Console.WriteLine("Find Server");
-					_timerGuid = tempTimerManager.AddTimer(InterNetwork.SendPictureTimerCallback, null, 0, 1000);
+					_timerGuid = tempTimerManager.AddTimer(InterNetwork.SendPictureTimerCallback, null, 0, 1000/Program.fps);
+					tempCamera.StartStreaming (Program.pictureSize, Program.fps);
 				}
 				else
 				{
 					Console.WriteLine("Lost Server");
 					tempTimerManager.StopTimer(_timerGuid);
+					tempCamera.StopStreaming ();
 				}
 			}
 		}

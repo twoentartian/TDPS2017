@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using SerialPortNamespace;
 using TcpUdpManagerNamespace;
 using TimerManagerNamespace;
+using RaspberryCam;
 
 namespace Cs_Mono_RaspberryPi
 {
@@ -23,6 +24,10 @@ namespace Cs_Mono_RaspberryPi
 		public static readonly int LocalUdpPort = 15878;
 
 		public static readonly int BaudRate = 115200;
+
+		public static readonly PictureSize pictureSize = new PictureSize (640, 480);
+
+		public static readonly int fps = 10;
 
 		#endregion
 
@@ -41,32 +46,37 @@ namespace Cs_Mono_RaspberryPi
 
 			#region Init Serial Manager
 
-			Console.Write("Init SERIAL manager");
+			Console.Write("Init SERIAL manager ");
 			SerialManager tempSerialManager = SerialManager.GetInstance();
 			while (true)
 			{
 				string[] ports = SerialManager.GetAllVaildPorts();
-				if (ports.Length == 0)
+				bool signFind = false;
+				foreach(string i in ports)
+				{
+					if(i.Contains("USB"))
+					{
+						RaspberrySerial.PortGuid = tempSerialManager.Add(i, BaudRate, Parity.None, RaspberrySerial.TargetDataReceivedEventHandler).Guid;
+						Console.Write("Select" + i);
+						signFind = true;
+						break;
+					}
+				}
+				if (!signFind)
 				{
 					Console.WriteLine("The system is waiting for a serial port device");
 					Thread.Sleep(1000);
 				}
 				else
 				{
-					RaspberrySerial.PortGuid = tempSerialManager.Add(ports[0], BaudRate, Parity.None, RaspberrySerial.TargetDataReceivedEventHandler).Guid;
 					break;
 				}
 			}
 			Console.WriteLine(" --- success");
 
 			#endregion
-
-
-
-
-
-
 			Console.ReadLine();
+			StateManager.GetInstance ().FindServer = false;
 		}
 	}
 }
