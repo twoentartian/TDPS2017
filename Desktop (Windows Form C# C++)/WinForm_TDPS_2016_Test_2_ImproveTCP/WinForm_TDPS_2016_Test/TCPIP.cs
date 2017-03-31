@@ -121,6 +121,7 @@ namespace WinForm_TDPS_2016_TCPIP
 		/// <param name="clientSocket"></param>  
 		private void ReceiveMessage(object clientSocket)
 		{
+			
 			Socket myClientSocket = (Socket)clientSocket;
 
 			while (true)
@@ -138,16 +139,31 @@ namespace WinForm_TDPS_2016_TCPIP
 
 				long commandType = BitConverter.ToInt64(commandBytes, 0);
 
+				bool signFind = false;
 				foreach (var singleCommand in Command.CommandList)
 				{
 					if (singleCommand.GetId() == commandType)
 					{
+						signFind = true;
 						singleCommand.Execute(myClientSocket);
 						break;
 					}
 				}
+				if (!signFind)
+				{
+					if (commandType == 0L)
+					{
+						myClientSocket.Shutdown(SocketShutdown.Both);
+						myClientSocket.Close();
+						return;
+					}
+					else
+					{
+						continue;
+					}
+				}
 			}
-
+			
 
 		}
 	}
@@ -211,7 +227,7 @@ namespace WinForm_TDPS_2016_TCPIP
 				while (size < contentLen)
 				{
 					//Receive 256 bytes for every loop
-					byte[] bits = new byte[256];
+					byte[] bits = new byte[4096];
 					int r = clientSocket.Receive(bits, bits.Length, SocketFlags.None);
 					if (r <= 0) break;
 					ms.Write(bits, 0, r);
@@ -221,7 +237,6 @@ namespace WinForm_TDPS_2016_TCPIP
 				TcpIpFileManager tempFileManager = TcpIpFileManager.GetInstance();
 				tempFileManager.AddTempFile(img);
 				AForgeVideoSourceDevice.VideoSourceDevice.FlashTcpIpImage();
-				int i = clientSocket.Available;
 			}
 			catch (Exception ex)
 			{

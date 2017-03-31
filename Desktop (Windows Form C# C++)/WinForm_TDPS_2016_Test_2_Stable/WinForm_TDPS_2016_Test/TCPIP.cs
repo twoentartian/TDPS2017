@@ -151,7 +151,16 @@ namespace WinForm_TDPS_2016_TCPIP
 				}
 				if (!signFind)
 				{
-					return;
+					if (commandType == 0L)
+					{
+						myClientSocket.Shutdown(SocketShutdown.Both);
+						myClientSocket.Close();
+						return;
+					}
+					else
+					{
+						continue;
+					}
 				}
 			}
 			
