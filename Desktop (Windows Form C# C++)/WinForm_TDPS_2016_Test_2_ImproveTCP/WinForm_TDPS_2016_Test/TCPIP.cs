@@ -12,8 +12,10 @@ using System.Timers;
 using WinForm_TDPS_2016_Test;
 
 using StateManagerSpace;
-using TcpIpFileManagerSpace;
 using Timer = System.Timers.Timer;
+using TcpIpFileManagerSpace;
+using TcpUdpManagerNamespace;
+using TimerManagerNamespace;
 
 /*
  * Broadcast:
@@ -36,6 +38,7 @@ namespace WinForm_TDPS_2016_TCPIP
 		#endregion
 
 		#region Singleton
+
 		private static Server _instance;
 
 		protected Server()
@@ -51,218 +54,193 @@ namespace WinForm_TDPS_2016_TCPIP
 			}
 			return _instance;
 		}
+
 		#endregion
-
-		private IPAddress[] _localAddresses;
-		private IPAddress _localIpV4Address;
-		private string _localName;
-		private Socket _serverSocket;
-		private Socket _clientSocket;
-
-		public Socket ClientSocket => _clientSocket;
-
-		private byte[] _result = new byte[1024];
 
 		private void Init()
 		{
-			_localName = Dns.GetHostName();
-			_localAddresses = Dns.GetHostAddresses(_localName);
-			bool multiResult = false;
-			foreach (var singleAddress in _localAddresses)
-			{
-				if (singleAddress.AddressFamily == AddressFamily.InterNetwork)
-				{
-					if (!multiResult)
-					{
-						multiResult = true;
-						_localIpV4Address = singleAddress;
-					}
-					else
-					{
-						throw new MultiIpV4AddressException();
-					}
-				}
-			}
-			_serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			_serverSocket.Bind(new IPEndPoint(_localIpV4Address, _serverPort));  //绑定IP地址：端口  
-			_serverSocket.Listen(10);    //设定最多10个排队连接请求  
+			TcpManager tempTcpManager = TcpManager.GetInstance();
+			tempTcpManager.InitTcpServer(_serverPort, ServerListen);
+			tempTcpManager.HostTcpListener.Server.ReceiveBufferSize = 10000000;
+
 			StateManager tempManager = StateManager.GetInstance();
 			tempManager.Udp.SetUdpClose("Init");
 		}
 
-		public void StartListen()
+		static void ServerListen(object client)
 		{
-			StateManager tempManager = StateManager.GetInstance();
-			tempManager.Udp.SetUdpWaitForConnection($"Listenning {_serverSocket.LocalEndPoint.ToString()}");
-			Thread listenThread = new Thread(ListenClientConnect);
-			listenThread.IsBackground = true;
-			listenThread.Start();
-		}
-
-		/// <summary>  
-		/// Wait and listen for client.
-		/// </summary>  
-		private void ListenClientConnect()
-		{
-			while (true)
-			{
-				StateManager tempManager = StateManager.GetInstance();
-				_clientSocket = _serverSocket.Accept();
-				tempManager.Udp.SetUdpFindClient();
-				Thread receiveThread = new Thread(ReceiveMessage);
-				receiveThread.IsBackground = true;
-				receiveThread.Start(_clientSocket);
-			}
-		}
-
-		/// <summary>  
-		/// Receive message
-		/// </summary>  
-		/// <param name="clientSocket"></param>  
-		private void ReceiveMessage(object clientSocket)
-		{
-			
-			Socket myClientSocket = (Socket)clientSocket;
+			TcpManager.TcpClientWithGuid tcpClientWithGuid = (TcpManager.TcpClientWithGuid) client;
+			int lostCounter = 0;
 
 			while (true)
 			{
 				byte[] commandBytes = new byte[8];
 				try
 				{
-					myClientSocket.Receive(commandBytes, commandBytes.Length, SocketFlags.None);
+					tcpClientWithGuid.TcpClient.GetStream().Read(commandBytes, 0, commandBytes.Length);
 				}
 				catch (Exception e)
 				{
 					Console.WriteLine(e);
+					tcpClientWithGuid.Stop();
 					return;
 				}
 
 				long commandType = BitConverter.ToInt64(commandBytes, 0);
-
-				bool signFind = false;
-				foreach (var singleCommand in Command.CommandList)
+				if (commandType == 1)
 				{
-					if (singleCommand.GetId() == commandType)
+					lostCounter = 0;
+					// Receive picture
+					try
 					{
-						signFind = true;
-						singleCommand.Execute(myClientSocket);
-						break;
+						byte[] bitLen = new byte[8];
+						tcpClientWithGuid.TcpClient.GetStream().Read(bitLen, 0, bitLen.Length);
+						//Get the length of the file
+						long contentLen = BitConverter.ToInt64(bitLen, 0);
+						if (contentLen > 1000000L)
+						{
+							tcpClientWithGuid.Stop();
+							return;
+						}
+						int size = 0;
+						MemoryStream ms = new MemoryStream();
+						//Receive the file
+						while (size < contentLen)
+						{
+							//Receive 256 bytes for every loop
+							byte[] bits = new byte[4096];
+							int r = tcpClientWithGuid.TcpClient.GetStream().Read(bits, 0, bits.Length);
+							if (r <= 0) break;
+							ms.Write(bits, 0, r);
+							size += r;
+						}
+						System.Drawing.Image img = System.Drawing.Image.FromStream(ms);
+						TcpIpFileManager tempFileManager = TcpIpFileManager.GetInstance();
+						tempFileManager.AddTempFile(img);
+						AForgeVideoSourceDevice.VideoSourceDevice.FlashTcpIpImage();
 					}
-				}
-				if (!signFind)
-				{
-					if (commandType == 0L)
+					catch (Exception ex)
 					{
-						myClientSocket.Shutdown(SocketShutdown.Both);
-						myClientSocket.Close();
+						Console.WriteLine(ex);
+						tcpClientWithGuid.Stop();
 						return;
 					}
-					else
+
+				}
+				else if (commandType == 0)
+				{
+					lostCounter++;
+					if (lostCounter == 100)
 					{
-						continue;
+						tcpClientWithGuid.Stop();
 					}
 				}
-			}
-			
-
-		}
-	}
-
-	class Command
-	{
-		protected static List<Command> _commandList = new List<Command>(5);
-
-		public static List<Command> CommandList
-		{
-			get
-			{
-				if (_commandList.Count == 0)
+				else
 				{
-					InitList();
+					// TODO:Add 
 				}
-				return _commandList;
+
 			}
-		}
-
-		protected Command()
-		{
-			
-		}
-
-		protected static void InitList()
-		{
-			_commandList.Add(new GetPictureCommand());
-			_commandList.Add(new EchoCommand());
-		}
-
-		public virtual void Execute(Socket clientSocket)
-		{
-			
-		}
-
-		public virtual long GetId()
-		{
-			return 0;
 		}
 	}
 
-	class GetPictureCommand : Command
-	{
-		public override long GetId()
+	/*
+		class Command
 		{
-			return 1;
-		}
-
-		public override void Execute(Socket clientSocket)
-		{
-			try
+			protected static List<Command> _commandList = new List<Command>(5);
+	
+			public static List<Command> CommandList
 			{
-				byte[] bitLen = new byte[8];
-				clientSocket.Receive(bitLen, bitLen.Length, SocketFlags.None);
-				//Get the length of the file
-				long contentLen = BitConverter.ToInt64(bitLen, 0);
-				int size = 0;
-				MemoryStream ms = new MemoryStream();
-				//Receive the file
-				while (size < contentLen)
+				get
 				{
-					//Receive 256 bytes for every loop
-					byte[] bits = new byte[4096];
-					int r = clientSocket.Receive(bits, bits.Length, SocketFlags.None);
-					if (r <= 0) break;
-					ms.Write(bits, 0, r);
-					size += r;
+					if (_commandList.Count == 0)
+					{
+						InitList();
+					}
+					return _commandList;
 				}
-				System.Drawing.Image img = System.Drawing.Image.FromStream(ms);
-				TcpIpFileManager tempFileManager = TcpIpFileManager.GetInstance();
-				tempFileManager.AddTempFile(img);
-				AForgeVideoSourceDevice.VideoSourceDevice.FlashTcpIpImage();
 			}
-			catch (Exception ex)
+	
+			protected Command()
 			{
-				Console.WriteLine(ex.Message);
-				clientSocket.Shutdown(SocketShutdown.Both);
-				clientSocket.Close();
-				return;
+				
 			}
-
-
+	
+			protected static void InitList()
+			{
+				_commandList.Add(new GetPictureCommand());
+				_commandList.Add(new EchoCommand());
+			}
+	
+			public virtual void Execute(Socket clientSocket)
+			{
+				
+			}
+	
+			public virtual long GetId()
+			{
+				return 0;
+			}
 		}
-	}
-
-	class EchoCommand : Command
-	{
-		public override long GetId()
+	
+		class GetPictureCommand : Command
 		{
-			return 2;
+			public override long GetId()
+			{
+				return 1;
+			}
+	
+			public override void Execute(Socket clientSocket)
+			{
+				try
+				{
+					byte[] bitLen = new byte[8];
+					clientSocket.Receive(bitLen, bitLen.Length, SocketFlags.None);
+					//Get the length of the file
+					long contentLen = BitConverter.ToInt64(bitLen, 0);
+					int size = 0;
+					MemoryStream ms = new MemoryStream();
+					//Receive the file
+					while (size < contentLen)
+					{
+						//Receive 256 bytes for every loop
+						byte[] bits = new byte[4096];
+						int r = clientSocket.Receive(bits, bits.Length, SocketFlags.None);
+						if (r <= 0) break;
+						ms.Write(bits, 0, r);
+						size += r;
+					}
+					System.Drawing.Image img = System.Drawing.Image.FromStream(ms);
+					TcpIpFileManager tempFileManager = TcpIpFileManager.GetInstance();
+					tempFileManager.AddTempFile(img);
+					AForgeVideoSourceDevice.VideoSourceDevice.FlashTcpIpImage();
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine(ex.Message);
+					clientSocket.Shutdown(SocketShutdown.Both);
+					clientSocket.Close();
+					return;
+				}
+	
+	
+			}
 		}
-
-		public override void Execute(Socket clientSocket)
+	
+		class EchoCommand : Command
 		{
-			Server localServer = Server.GetInstance();
-			localServer.ClientSocket.Send(Encoding.ASCII.GetBytes("Echo from server" + Environment.NewLine));
+			public override long GetId()
+			{
+				return 2;
+			}
+	
+			public override void Execute(Socket clientSocket)
+			{
+				Server localServer = Server.GetInstance();
+				localServer.ClientSocket.Send(Encoding.ASCII.GetBytes("Echo from server" + Environment.NewLine));
+			}
 		}
-	}
+		*/
 
 	class BroadcastService
 	{
@@ -291,72 +269,46 @@ namespace WinForm_TDPS_2016_TCPIP
 
 		#endregion
 
-		private IPAddress[] _localAddresses;
-		private IPAddress _localIpV4Address;
-		private IPEndPoint _localIpEndPoint;
-		private IPEndPoint _remoteBoradcastIpEndPoint;
-		private UdpClient _localUdpClient;
-
-		private byte[] _contentBytes;
-		private Timer _broadcastTimer;
-
+		private string content;
+		private Guid TimerGuid;
 		public const string Separator = "#";
 
 		private void Init()
 		{
-			//Set the timer
-			_broadcastTimer = new Timer();
-			_broadcastTimer.Interval = 1000;
-			_broadcastTimer.Elapsed += BroadcastTimerOnElapsed;
-
 			//Set the local UDP port
-			string localName = Dns.GetHostName();
-			_localAddresses = Dns.GetHostAddresses(localName);
-			bool multiResult = false;
-			foreach (var singleAddress in _localAddresses)
-			{
-				if (singleAddress.AddressFamily == AddressFamily.InterNetwork)
-				{
-					if (!multiResult)
-					{
-						multiResult = true;
-						_localIpV4Address = singleAddress;
-					}
-					else
-					{
-						throw new MultiIpV4AddressException();
-					}
-				}
-			}
+			UdpManager tempUdpManager = UdpManager.GetInstance();
+			tempUdpManager.InitUdp(localPort, UdpReceive);
 
 			//Generate the broadcast info
-			string Content = ("Server" + Separator + _localIpV4Address + Separator + Server.GetInstance().ServerPort + Separator + Environment.NewLine).ToString();
-			_contentBytes = Encoding.ASCII.GetBytes(Content);
-			_remoteBoradcastIpEndPoint = new IPEndPoint(IPAddress.Broadcast, BroadcastPort);
+			content = ("Server" + Separator + tempUdpManager.HostIpAddress + Separator + Server.GetInstance().ServerPort + Separator + Environment.NewLine);
 
-			//Set the local UDP Client
-			_localIpEndPoint = new IPEndPoint(_localIpV4Address, localPort);
-			_localUdpClient = new UdpClient(_localIpEndPoint);
+			//Set the timer
+			TimerManager tempTimerManager = TimerManager.GetInstance();
+			TimerGuid = tempTimerManager.AddTimer(BroadcastTimerOnElapsed, null, 0, 1000);
 		}
 
-		private void BroadcastTimerOnElapsed(object sender, ElapsedEventArgs elapsedEventArgs)
+		private static void UdpReceive(byte[] dataBytes)
 		{
-			_localUdpClient.Send(_contentBytes, _contentBytes.Length, _remoteBoradcastIpEndPoint);
+			//TODO: add function when UDP receive message.
+			throw new NotImplementedException();
 		}
 
-		public void BroadcastToInterNetwork(byte[] argBytes)
+		private void BroadcastTimerOnElapsed(object arg)
 		{
-			_localUdpClient.Send(argBytes, argBytes.Length, _remoteBoradcastIpEndPoint);
+			UdpManager tempUdpManager = UdpManager.GetInstance();
+			tempUdpManager.Send(IPAddress.Broadcast, BroadcastPort, content);
 		}
 
-		public void StartBroadcast()
+		public void BroadcastToInterNetwork(string data)
 		{
-			_broadcastTimer.Start();
+			UdpManager tempUdpManager = UdpManager.GetInstance();
+			tempUdpManager.Send(IPAddress.Broadcast, BroadcastPort, data);
 		}
 
 		public void StopBroadcast()
 		{
-			_broadcastTimer.Stop();
+			TimerManager tempTimerManager = TimerManager.GetInstance();
+			tempTimerManager.StopTimer(TimerGuid);
 		}
 	}
 }

@@ -110,9 +110,7 @@ namespace WinForm_TDPS_2016_Test
 			_tcpIpFileManager.Init();
 
 			_tcpIpServer = Server.GetInstance();
-			_tcpIpServer.StartListen();
-
-			BroadcastService.GetInstance().StartBroadcast();
+			BroadcastService.GetInstance();
 		}
 
 		private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
@@ -146,27 +144,18 @@ namespace WinForm_TDPS_2016_Test
 
 		private void buttonSample_Click(object sender, EventArgs e)
 		{
-			/*
-			Image tempImage = videoSourcePlayer.GetCurrentVideoFrame();
-			string tempPath = _tempFileManager.AddTempFile(tempImage);
-			TextureAnalysisResult textureResult = Cv.TextureAnalysis(tempPath);
-			FindCuttingPointResult cuttingPointResult = Cv.FindCuttingPoint(textureResult, Cv.FindCuttingPointMode.MaximumMethod);
-			Bitmap resultImage = textureResult.img.Resize(pictureBox.Width, pictureBox.Height, Inter.Linear, true).Bitmap;
-
-			Bitmap newBitmap = new Bitmap(resultImage.Width, resultImage.Height);
-			Graphics g = Graphics.FromImage(newBitmap);
-			g.DrawImage(resultImage, 0, 0);
-			for (int i = 0; i < cuttingPointResult.Edges.Count; i++)
-			{
-				float location = (float)cuttingPointResult.Edges[i] / cuttingPointResult.Accuracy * newBitmap.Width;
-				g.DrawLine(new Pen(Color.Red, 4), location, 0 * newBitmap.Height, location, 1 * newBitmap.Height);
-			}
-			g.Dispose();
-
-			pictureBox.Image = newBitmap;
-			*/
+			Image<Rgb, Byte> rawImage;
 			string tempPath = VideoSourceDevice.GetCurrentPicturePath();
-			Image<Rgb, Byte> rawImage = new Image<Rgb, byte>(tempPath);
+			try
+			{
+				rawImage = new Image<Rgb, byte>(tempPath);
+			}
+			catch (Exception exception)
+			{
+				Console.WriteLine(exception);
+				return;
+			}
+			
 			double[] threshold1 = new double[]
 			{
 				200

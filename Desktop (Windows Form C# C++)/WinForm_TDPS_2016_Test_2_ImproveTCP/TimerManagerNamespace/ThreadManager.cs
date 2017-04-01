@@ -78,6 +78,7 @@ namespace TimerManagerNamespace
 					return;
 				}
 			}
+			throw new NoGuidFoundException("Could not find such GUID");
 		}
 
 		/// <summary>

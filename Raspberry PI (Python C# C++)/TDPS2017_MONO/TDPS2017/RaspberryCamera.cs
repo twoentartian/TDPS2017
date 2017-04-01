@@ -43,7 +43,12 @@ namespace Cs_Mono_RaspberryPi
 				{
 					return camDriver.GetVideoFrame ();
 				}
-				Thread.Sleep (1000);
+				else
+				{
+					Console.WriteLine ("Wait for camera get ready!");
+					Thread.Sleep (1000);
+				}
+
 			}
 		}
 

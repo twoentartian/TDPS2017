@@ -95,7 +95,7 @@ namespace WinForm_TDPS_2016_Test
 			              speedA + BroadcastService.Separator + comboBoxMotorB.SelectedIndex + BroadcastService.Separator +
 			              speedB + BroadcastService.Separator + time + BroadcastService.Separator + Environment.NewLine;
 			BroadcastService broadcastService = BroadcastService.GetInstance();
-			broadcastService.BroadcastToInterNetwork(Encoding.Default.GetBytes(data));
+			broadcastService.BroadcastToInterNetwork(data);
 		}
 	}
 }

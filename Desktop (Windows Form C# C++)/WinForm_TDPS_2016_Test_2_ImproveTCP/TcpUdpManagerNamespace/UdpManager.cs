@@ -31,47 +31,19 @@ namespace TcpUdpManagerNamespace
 		#region Property
 
 		private string _hostName;
-		//public string HostName => _hostName;
+		public string HostName => _hostName;
 
 		private IPAddress _hostIpAddress;
-		//public IPAddress HostIpAddress => _hostIpAddress;
-		public IPAddress HostIpAddress
-		{
-			get
-			{
-				return _hostIpAddress;
-			}
-		}
+		public IPAddress HostIpAddress => _hostIpAddress;
 
 		private IPEndPoint _hostIpEndPoint;
-		//public IPEndPoint HostIpEndPoint => _hostIpEndPoint;
-		public IPEndPoint HostIpEndPoint
-		{
-			get
-			{
-				return _hostIpEndPoint;
-			}
-		}
+		public IPEndPoint HostIpEndPoint => _hostIpEndPoint;
 
 		private UdpClient _hostUdpClient;
-		//public UdpClient HostUdpClient => _hostUdpClient;
-		public UdpClient HostUdpClient
-		{
-			get
-			{
-				return _hostUdpClient;
-			}
-		}
+		public UdpClient HostUdpClient => _hostUdpClient;
 
 		private ListenTaskDelegate _receiveDelegate;
-		//public ListenTaskDelegate ReceiveDelegate => _receiveDelegate;
-		public ListenTaskDelegate ReceiveDelegate
-		{
-			get
-			{
-				return _receiveDelegate;
-			}
-		}
+		public ListenTaskDelegate ReceiveDelegate => _receiveDelegate;
 
 		#endregion
 
@@ -107,14 +79,13 @@ namespace TcpUdpManagerNamespace
 		/// <param name="argListenTask"></param>
 		public void InitUdp(int argPort, ListenTaskDelegate argListenTask)
 		{
-			if (_hostName == null || _hostIpAddress == null)
+			if (_hostName == null|| _hostIpAddress == null)
 			{
 				InitHost();
 			}
 
-			_hostIpEndPoint = new IPEndPoint(IPAddress.Any, argPort);
+			_hostIpEndPoint = new IPEndPoint(_hostIpAddress, argPort);
 			_hostUdpClient = new UdpClient(_hostIpEndPoint);
-			_hostUdpClient.EnableBroadcast = true;
 			_receiveDelegate = argListenTask;
 
 			//Add listen thread

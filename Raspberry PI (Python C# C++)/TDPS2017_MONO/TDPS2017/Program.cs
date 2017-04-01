@@ -25,7 +25,7 @@ namespace Cs_Mono_RaspberryPi
 
 		public static readonly int BaudRate = 115200;
 
-		public static readonly PictureSize pictureSize = new PictureSize (640, 480);
+		public static readonly PictureSize pictureSize = new PictureSize (1280, 720);
 
 		public static readonly int fps = 10;
 
@@ -35,6 +35,12 @@ namespace Cs_Mono_RaspberryPi
 
 		static void Main(string[] args)
 		{
+			#region Camera
+			RaspberryCamera tempCamera = RaspberryCamera.GetInstance ();
+			tempCamera.StartStreaming (Program.pictureSize, Program.fps);
+			Console.WriteLine("Init Camera --- success");
+			#endregion
+
 			#region Init UDP manager
 
 			Console.Write("Init UDP manager");
@@ -76,6 +82,7 @@ namespace Cs_Mono_RaspberryPi
 
 			#endregion
 			Console.ReadLine();
+			tempCamera.StopStreaming ();
 			StateManager.GetInstance ().FindServer = false;
 		}
 	}
