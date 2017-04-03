@@ -6,6 +6,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Diagnostics;
 using SerialPortNamespace;
 using TcpUdpManagerNamespace;
 using TimerManagerNamespace;
@@ -27,11 +28,9 @@ namespace Cs_Mono_RaspberryPi
 
 		public static readonly PictureSize pictureSize = new PictureSize (1280, 720);
 
-		public static readonly int fps = 10;
+		public static readonly int fps = 15;
 
 		#endregion
-
-
 
 		static void Main(string[] args)
 		{
@@ -62,7 +61,9 @@ namespace Cs_Mono_RaspberryPi
 				{
 					if(i.Contains("USB"))
 					{
-						RaspberrySerial.PortGuid = tempSerialManager.Add(i, BaudRate, Parity.None, RaspberrySerial.TargetDataReceivedEventHandler).Guid;
+						SerialManager.SerialPortWithGuid portWithGuid = tempSerialManager.Add(i, BaudRate, Parity.None, RaspberrySerial.TargetDataReceivedEventHandler);
+						RaspberrySerial.PortGuid = portWithGuid.Guid;
+						RaspberrySerial.StartReceive(portWithGuid.Serial);
 						Console.Write("Select" + i);
 						signFind = true;
 						break;
@@ -79,11 +80,21 @@ namespace Cs_Mono_RaspberryPi
 				}
 			}
 			Console.WriteLine(" --- success");
-
 			#endregion
+			if (Debugger.IsAttached)
+			{
+				while (true)
+				{
+					Thread.Sleep (1000);
+				}
+			}
+
 			Console.ReadLine();
+
 			tempCamera.StopStreaming ();
 			StateManager.GetInstance ().FindServer = false;
+			tempSerialManager.GetPort (RaspberrySerial.PortGuid).Serial.Dispose ();
+			Environment.Exit (0);
 		}
 	}
 }

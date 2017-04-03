@@ -144,107 +144,10 @@ namespace WinForm_TDPS_2016_TCPIP
 		}
 	}
 
-	/*
-		class Command
-		{
-			protected static List<Command> _commandList = new List<Command>(5);
-	
-			public static List<Command> CommandList
-			{
-				get
-				{
-					if (_commandList.Count == 0)
-					{
-						InitList();
-					}
-					return _commandList;
-				}
-			}
-	
-			protected Command()
-			{
-				
-			}
-	
-			protected static void InitList()
-			{
-				_commandList.Add(new GetPictureCommand());
-				_commandList.Add(new EchoCommand());
-			}
-	
-			public virtual void Execute(Socket clientSocket)
-			{
-				
-			}
-	
-			public virtual long GetId()
-			{
-				return 0;
-			}
-		}
-	
-		class GetPictureCommand : Command
-		{
-			public override long GetId()
-			{
-				return 1;
-			}
-	
-			public override void Execute(Socket clientSocket)
-			{
-				try
-				{
-					byte[] bitLen = new byte[8];
-					clientSocket.Receive(bitLen, bitLen.Length, SocketFlags.None);
-					//Get the length of the file
-					long contentLen = BitConverter.ToInt64(bitLen, 0);
-					int size = 0;
-					MemoryStream ms = new MemoryStream();
-					//Receive the file
-					while (size < contentLen)
-					{
-						//Receive 256 bytes for every loop
-						byte[] bits = new byte[4096];
-						int r = clientSocket.Receive(bits, bits.Length, SocketFlags.None);
-						if (r <= 0) break;
-						ms.Write(bits, 0, r);
-						size += r;
-					}
-					System.Drawing.Image img = System.Drawing.Image.FromStream(ms);
-					TcpIpFileManager tempFileManager = TcpIpFileManager.GetInstance();
-					tempFileManager.AddTempFile(img);
-					AForgeVideoSourceDevice.VideoSourceDevice.FlashTcpIpImage();
-				}
-				catch (Exception ex)
-				{
-					Console.WriteLine(ex.Message);
-					clientSocket.Shutdown(SocketShutdown.Both);
-					clientSocket.Close();
-					return;
-				}
-	
-	
-			}
-		}
-	
-		class EchoCommand : Command
-		{
-			public override long GetId()
-			{
-				return 2;
-			}
-	
-			public override void Execute(Socket clientSocket)
-			{
-				Server localServer = Server.GetInstance();
-				localServer.ClientSocket.Send(Encoding.ASCII.GetBytes("Echo from server" + Environment.NewLine));
-			}
-		}
-		*/
-
 	class BroadcastService
 	{
 		#region Singleton
+
 		private static BroadcastService _instance;
 
 		protected BroadcastService()
@@ -260,6 +163,7 @@ namespace WinForm_TDPS_2016_TCPIP
 			}
 			return _instance;
 		}
+
 		#endregion
 
 		#region Config
@@ -272,6 +176,11 @@ namespace WinForm_TDPS_2016_TCPIP
 		private string content;
 		private Guid TimerGuid;
 		public const string Separator = "#";
+
+		public static readonly string[] Separators =
+		{
+			Separator
+		};
 
 		private void Init()
 		{
@@ -287,10 +196,37 @@ namespace WinForm_TDPS_2016_TCPIP
 			TimerGuid = tempTimerManager.AddTimer(BroadcastTimerOnElapsed, null, 0, 1000);
 		}
 
+		private static string udpReceiveBuffer;
+
+
+
 		private static void UdpReceive(byte[] dataBytes)
 		{
 			//TODO: add function when UDP receive message.
-			throw new NotImplementedException();
+			string data = Encoding.ASCII.GetString(dataBytes);
+			udpReceiveBuffer += data;
+			if (!udpReceiveBuffer.Contains("\n"))
+			{
+				return;
+			}
+			string[] items = udpReceiveBuffer.Split(Separators, StringSplitOptions.RemoveEmptyEntries);
+			if (items[0] == "Motor")
+			{
+				if (items[1] == "Finished\r")
+				{
+					Arduino.GetInstance().BusySign = false;
+				}
+				else
+				{
+					
+				}
+			}
+			else
+			{
+				
+			}
+
+			udpReceiveBuffer = string.Empty;
 		}
 
 		private void BroadcastTimerOnElapsed(object arg)

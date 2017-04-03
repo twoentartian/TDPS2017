@@ -22,7 +22,7 @@ namespace TimerManagerNamespace
 
 		#endregion
 
-		private class TimerWithGuid
+		public class TimerWithGuid
 		{
 			public Guid TimerGuid = Guid.Empty;
 			public bool TimerOccupied = false;

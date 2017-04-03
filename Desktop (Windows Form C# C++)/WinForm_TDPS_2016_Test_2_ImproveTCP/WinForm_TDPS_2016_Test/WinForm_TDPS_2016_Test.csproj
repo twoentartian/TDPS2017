@@ -109,6 +109,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Arduino.cs" />
     <Compile Include="ArduinoControlPanel.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -132,6 +133,7 @@
     <Compile Include="StateManager.cs" />
     <Compile Include="TCPIP.cs" />
     <Compile Include="TcpIpFileManager.cs" />
+    <Compile Include="TDPS_Task.cs" />
     <Compile Include="TempFileManager.cs" />
     <Compile Include="VideoSourceDevice.cs" />
     <Compile Include="ZedGraphForm.cs">

@@ -4,6 +4,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using AForge.Imaging;
@@ -58,7 +59,7 @@ namespace WinForm_TDPS_2016_Test
 
 		public static void Debug2()
 		{
-			
+
 		}
 
 	}

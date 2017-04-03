@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -11,6 +12,12 @@ using WinForm_TDPS_2016_TCPIP;
 
 namespace WinForm_TDPS_2016_Test
 {
+	public enum MotorDirection
+	{
+		Forward = 0,
+		Backward = 1
+	};
+
 	public partial class FormArduinoControlPanel : Form
 	{
 		#region Singleton
@@ -32,12 +39,6 @@ namespace WinForm_TDPS_2016_Test
 
 		private readonly int MaxSpeed = 150;
 		private readonly int MinSpeed = 1;
-
-		enum MotorDirection
-		{
-			Forward = 0,
-			Backward = 1
-		};
 
 		public void Init()
 		{
@@ -91,11 +92,12 @@ namespace WinForm_TDPS_2016_Test
 				MessageBox.Show("Please check your input - time!");
 				return;
 			}
-			string data = "Motor" + BroadcastService.Separator + comboBoxMotorA.SelectedIndex + BroadcastService.Separator +
-			              speedA + BroadcastService.Separator + comboBoxMotorB.SelectedIndex + BroadcastService.Separator +
-			              speedB + BroadcastService.Separator + time + BroadcastService.Separator + Environment.NewLine;
-			BroadcastService broadcastService = BroadcastService.GetInstance();
-			broadcastService.BroadcastToInterNetwork(data);
+			MotorDirection dirA = (MotorDirection) comboBoxMotorA.SelectedIndex;
+			MotorDirection dirB = (MotorDirection) comboBoxMotorB.SelectedIndex;
+			Arduino.GetInstance().Send(dirA, speedA, dirB, speedB, time);
+
 		}
+
+
 	}
 }

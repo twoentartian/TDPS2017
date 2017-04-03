@@ -144,30 +144,8 @@ namespace WinForm_TDPS_2016_Test
 
 		private void buttonSample_Click(object sender, EventArgs e)
 		{
-			Image<Rgb, Byte> rawImage;
-			string tempPath = VideoSourceDevice.GetCurrentPicturePath();
-			try
-			{
-				rawImage = new Image<Rgb, byte>(tempPath);
-			}
-			catch (Exception exception)
-			{
-				Console.WriteLine(exception);
-				return;
-			}
 			
-			double[] threshold1 = new double[]
-			{
-				200
-			};
-			double[] threshold2 = new double[]
-			{
-				200,300,400
-			};
-			CannyTextureAnalysisResult textureAnalysisResult = Cv.AutoCannyTextureAnalysis(rawImage, threshold1, threshold2, 0);
-			ZedGraphForm tempZedGraphForm = new ZedGraphForm(textureAnalysisResult.Data);
-			tempZedGraphForm.Show();
-			MessageBox.Show(textureAnalysisResult.Info);
+
 		}
 
 		private void buttonDebug_Click(object sender, EventArgs e)
@@ -185,6 +163,11 @@ namespace WinForm_TDPS_2016_Test
 			FormArduinoControlPanel arduinoForm = FormArduinoControlPanel.GetInstance();
 			arduinoForm.Show();
 		}
+
+		private void buttonGround1Task1_Click(object sender, EventArgs e)
+		{
+			TDPS_Task.GetInstance().G1T1Start();
+		}
 		#endregion
 
 		#region Label
@@ -199,5 +182,7 @@ namespace WinForm_TDPS_2016_Test
 			VideoSourceDevice.UpdateResolution();
 		}
 		#endregion
+
+
 	}
 }

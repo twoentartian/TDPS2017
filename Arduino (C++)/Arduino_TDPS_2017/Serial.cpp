@@ -81,19 +81,7 @@ CommandResult SerialPort::CheckAvailable()
 				Motor::AllStop();
 
 				MotorResult returnResult(dir1, buffer[2], dir2, buffer[4], time);
-				Serial.println("Finished");
-#ifdef DEBUG_SERIAL
-				Serial.print("Motor: ");
-				Serial.print((int)dir1);
-				Serial.print(" ");
-				Serial.print((int)buffer[2]);
-				Serial.print(" ");
-				Serial.print((int)dir2);
-				Serial.print(" ");
-				Serial.print((int)buffer[4]);
-				Serial.print(" ");
-				Serial.println(time);
-#endif
+				Serial.println("PC#Motor#Finished");
 				bufferLoc = 0;
 				for (int i = 0; i < BUFFER_SIZE; i++)
 				{

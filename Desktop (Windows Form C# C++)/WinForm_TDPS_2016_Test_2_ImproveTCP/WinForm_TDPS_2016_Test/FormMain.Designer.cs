@@ -41,6 +41,7 @@
 			this.textBoxValue1 = new System.Windows.Forms.TextBox();
 			this.textBoxValue2 = new System.Windows.Forms.TextBox();
 			this.buttonOpenArduinoPanel = new System.Windows.Forms.Button();
+			this.buttonGround1Task1 = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBoxTcpIp)).BeginInit();
 			this.SuspendLayout();
@@ -163,11 +164,22 @@
 			this.buttonOpenArduinoPanel.UseVisualStyleBackColor = true;
 			this.buttonOpenArduinoPanel.Click += new System.EventHandler(this.buttonOpenArduinoPanel_Click);
 			// 
+			// buttonGround1Task1
+			// 
+			this.buttonGround1Task1.Location = new System.Drawing.Point(990, 305);
+			this.buttonGround1Task1.Name = "buttonGround1Task1";
+			this.buttonGround1Task1.Size = new System.Drawing.Size(123, 23);
+			this.buttonGround1Task1.TabIndex = 15;
+			this.buttonGround1Task1.Text = "Ground 1, Task 1";
+			this.buttonGround1Task1.UseVisualStyleBackColor = true;
+			this.buttonGround1Task1.Click += new System.EventHandler(this.buttonGround1Task1_Click);
+			// 
 			// FormMain
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(1241, 407);
+			this.ClientSize = new System.Drawing.Size(1301, 407);
+			this.Controls.Add(this.buttonGround1Task1);
 			this.Controls.Add(this.buttonOpenArduinoPanel);
 			this.Controls.Add(this.textBoxValue2);
 			this.Controls.Add(this.textBoxValue1);
@@ -210,6 +222,7 @@
 		private System.Windows.Forms.TextBox textBoxValue1;
 		private System.Windows.Forms.TextBox textBoxValue2;
 		private System.Windows.Forms.Button buttonOpenArduinoPanel;
+		private System.Windows.Forms.Button buttonGround1Task1;
 	}
 }
 

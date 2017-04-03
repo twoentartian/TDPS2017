@@ -17,7 +17,7 @@ namespace Cs_Mono_RaspberryPi
 	{
 		#region UDP
 		public static UdpManager.ListenTaskDelegate UdpListenTaskDelegate = UdpListenTask;
-
+		public static int RemotePort = 15000;
 		/// <summary>
 		/// If UDP socket receive data from remote. (server and motor information)
 		/// </summary>
@@ -34,6 +34,7 @@ namespace Cs_Mono_RaspberryPi
 				{
 					TcpManager tempTcpManager = TcpManager.GetInstance();
 					tempTcpManager.InitTcpClient(new IPEndPoint(IPAddress.Parse(itemStrings[1]), Convert.ToInt32(itemStrings[2])), TcpListenTaskDelegate);
+					tempTcpManager.HostTcpClient.SendBufferSize = 10000000;
 					tempStateManager.FindServer = true;
 				}
 			}
@@ -73,7 +74,7 @@ namespace Cs_Mono_RaspberryPi
 		/// <param name="data"></param>
 		private static void TcpListenTask(byte[] data)
 		{
-
+			throw new NotImplementedException ();
 		}
 
 		public static TimerCallback SendPictureTimerCallback = SendPictureTimerCallbackFunc;
