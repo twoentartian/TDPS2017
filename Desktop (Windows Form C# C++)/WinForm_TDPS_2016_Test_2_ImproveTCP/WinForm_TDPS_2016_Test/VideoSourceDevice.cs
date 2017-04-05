@@ -19,14 +19,14 @@ namespace AForgeVideoSourceDevice
 	{
 		private enum NowState
 		{
-			Stop, LocalCamera, TcpIp
+			Stop, LocalCamera, Tcp
 		}
 
 		private static NowState State = NowState.Stop;
 
 		private static string[] otherModes =
 		{
-			"TCP IP"
+			"TCP/UDP"
 		};
 
 		private static FilterInfoCollection _videoDevices;
@@ -47,7 +47,7 @@ namespace AForgeVideoSourceDevice
 				string tempPath = _tempFileManager.AddTempFile(tempImage);
 				return tempPath;
 			}
-			else if (State == NowState.TcpIp)
+			else if (State == NowState.Tcp)
 			{
 				TcpIpFileManager _tcpIpFileManager = TcpIpFileManager.GetInstance();
 				return _tcpIpFileManager.TcpIpFilePath;
@@ -127,7 +127,14 @@ namespace AForgeVideoSourceDevice
 				if (form.GetComboBox_CaptureDevice().SelectedItem.ToString() == singleMode)
 				{
 					localCameraSign = false;
-					State = NowState.TcpIp;
+					if (singleMode == "TCP/UDP")
+					{
+						State = NowState.Tcp;
+					}
+					else
+					{
+						throw new LogicErrorException();
+					}
 					form.GetPictureBoxTcpIp().Show();
 					form.GetVideoSourcePlayer().Hide();
 				}
@@ -157,7 +164,7 @@ namespace AForgeVideoSourceDevice
 				form.GetVideoSourcePlayer().WaitForStop();
 				State = NowState.Stop;
 			}
-			else if (State == NowState.TcpIp)
+			else if (State == NowState.Tcp)
 			{
 				State = NowState.Stop;
 			}
@@ -170,7 +177,7 @@ namespace AForgeVideoSourceDevice
 
 		public static void FlashTcpIpImage()
 		{
-			if (State == NowState.TcpIp)
+			if (State == NowState.Tcp)
 			{
 				FormMain form = FormMain.GetInstance();
 				FileStream fs = File.OpenRead(TcpIpFileManagerSpace.TcpIpFileManager.GetInstance().TcpIpFilePath);

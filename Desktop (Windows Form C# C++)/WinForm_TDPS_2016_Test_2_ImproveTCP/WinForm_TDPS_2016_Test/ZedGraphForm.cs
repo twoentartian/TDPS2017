@@ -51,6 +51,31 @@ namespace WinForm_TDPS_2016_Test
 			}
 		}
 
+		public ZedGraphForm(float[] argData)
+		{
+			InitializeComponent();
+			double[,] newData = new double[1, argData.Length];
+			for (int i = 0; i < argData.Length; i++)
+			{
+				newData[0, i] = argData[i];
+			}
+
+			_nowState = StorageState.Array;
+			for (int i = 0; i < newData.GetLength(0); i++)
+			{
+				comboBoxDataSelect.Items.Add(string.Format("Data Set: {0:D}", i));
+			}
+			_dataArray = newData;
+			_myPane = zedGraphTable.GraphPane;
+			_myPane.Title.Text = "X - Y";
+			_myPane.XAxis.Title.Text = "Point";
+			_myPane.YAxis.Title.Text = "Value";
+			if (comboBoxDataSelect.Items.Count == 1)
+			{
+				comboBoxDataSelect.SelectedIndex = 0;
+			}
+		}
+
 		public ZedGraphForm(double[] argData)
 		{
 			InitializeComponent();

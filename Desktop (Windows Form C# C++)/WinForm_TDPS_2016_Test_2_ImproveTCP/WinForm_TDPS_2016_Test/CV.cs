@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Net.Mime;
 using System.Net.NetworkInformation;
@@ -48,42 +49,39 @@ namespace WinForm_TDPS_2016_Test
 	/// </summary>
 	class CannyTextureAnalysisResult : TextureAnalysisResult
 	{
-		public CannyTextureAnalysisResult(Image<Gray,Byte> argImage)
-		{
-			base.Img = argImage;
-			Data = new int[argImage.Width];
-			for (int x = 0; x < argImage.Width; x++)
-			{
-				for (int y = 0; y < argImage.Height; y++)
-				{
-					if (argImage.Data[y,x,0] == 255)
-					{
-						Data[x]++;
-					}
-				}
-			}
-		}
-
 		public CannyTextureAnalysisResult(Image<Gray, Byte> argImage, string argInfo)
 		{
-			base.Img = argImage;
-			Data = new int[argImage.Width];
+			Img = argImage;
+			Data = new float[argImage.Width];
 			for (int x = 0; x < argImage.Width; x++)
 			{
 				for (int y = 0; y < argImage.Height; y++)
 				{
 					if (argImage.Data[y, x, 0] == 255)
 					{
-						Data[x]++;
+						Data[x] += (float) y / argImage.Height;
 					}
 				}
 			}
 			Info = argInfo;
+			float allValues = 0;
+			float allPointValues = 0;
+			for (int point = 0; point < Data.Length; point++)
+			{
+				allPointValues += Data[point] * point;
+				allValues += Data[point];
+			}
+			Center = ((float) allPointValues) / allValues / Data.Length;
+			Diff = Center - 0.5f;
 		}
 
-		public readonly int[] Data;
+		public readonly float[] Data;
 
 		public readonly string Info;
+
+		public readonly float Center;
+
+		public readonly float Diff;
 	}
 
 	/// <summary>
@@ -356,7 +354,7 @@ namespace WinForm_TDPS_2016_Test
 					cannyImg = cannyImg.Canny(threshold1, threshold2);
 				}
 			}
-			return new CannyTextureAnalysisResult(cannyImg);
+			return new CannyTextureAnalysisResult(cannyImg, "Iteration");
 		}
 
 		public static CannyTextureAnalysisResult CannyTextureAnalysis(Image<Rgb,Byte> argImage, double threshold1, double threshold2,int iteration = 1)
@@ -373,7 +371,7 @@ namespace WinForm_TDPS_2016_Test
 					cannyImg = cannyImg.Canny(threshold1, threshold2);
 				}
 			}
-			return new CannyTextureAnalysisResult(cannyImg);
+			return new CannyTextureAnalysisResult(cannyImg, "Iteration");
 		}
 
 		/// <summary>
@@ -409,7 +407,7 @@ namespace WinForm_TDPS_2016_Test
 				{
 					cannyImg = argImage.Canny(singleThresholdValue1, singleThresholdValue2);
 					CannyTextureAnalysisResult tempCannyTextureAnalysisResult = new CannyTextureAnalysisResult(cannyImg, string.Format("Threshold1/2 = {0:D} {1:D}", (int)singleThresholdValue1, (int)singleThresholdValue2));
-					int sum=0, min= tempCannyTextureAnalysisResult.Data[0], max=min;
+					float sum=0, min= tempCannyTextureAnalysisResult.Data[0], max=min;
 					foreach (var i in tempCannyTextureAnalysisResult.Data)
 					{
 						sum += i;
@@ -451,6 +449,7 @@ namespace WinForm_TDPS_2016_Test
 		/// <param name="threshold2"></param>
 		/// <param name="factorBetweenMinAndMax"></param>
 		/// <returns></returns>
+		[Obsolete]
 		public static CannyTextureAnalysisResult AutoCannyTextureAnalysis(Image<Gray, Byte> argImage, double[] threshold1, double[] threshold2, int factorBetweenMinAndMax = 3)
 		{
 			Image<Gray, Byte> cannyImg = new Image<Gray, byte>(argImage.Size);
@@ -462,7 +461,7 @@ namespace WinForm_TDPS_2016_Test
 				{
 					cannyImg = argImage.Canny(singleThresholdValue1, singleThresholdValue2);
 					CannyTextureAnalysisResult tempCannyTextureAnalysisResult = new CannyTextureAnalysisResult(cannyImg, string.Format("Threshold1/2 = {0:D} {1:D}", (int)singleThresholdValue1, (int)singleThresholdValue2));
-					int sum = 0, min = tempCannyTextureAnalysisResult.Data[0], max = min;
+					float sum = 0, min = tempCannyTextureAnalysisResult.Data[0], max = min;
 					foreach (var i in tempCannyTextureAnalysisResult.Data)
 					{
 						sum += i;

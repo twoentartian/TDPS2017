@@ -42,6 +42,7 @@
 			this.textBoxValue2 = new System.Windows.Forms.TextBox();
 			this.buttonOpenArduinoPanel = new System.Windows.Forms.Button();
 			this.buttonGround1Task1 = new System.Windows.Forms.Button();
+			this.textBoxConsole = new System.Windows.Forms.TextBox();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBoxTcpIp)).BeginInit();
 			this.SuspendLayout();
@@ -174,11 +175,22 @@
 			this.buttonGround1Task1.UseVisualStyleBackColor = true;
 			this.buttonGround1Task1.Click += new System.EventHandler(this.buttonGround1Task1_Click);
 			// 
+			// textBoxConsole
+			// 
+			this.textBoxConsole.Location = new System.Drawing.Point(1119, 12);
+			this.textBoxConsole.Multiline = true;
+			this.textBoxConsole.Name = "textBoxConsole";
+			this.textBoxConsole.ReadOnly = true;
+			this.textBoxConsole.ScrollBars = System.Windows.Forms.ScrollBars.Horizontal;
+			this.textBoxConsole.Size = new System.Drawing.Size(372, 316);
+			this.textBoxConsole.TabIndex = 16;
+			// 
 			// FormMain
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(1301, 407);
+			this.ClientSize = new System.Drawing.Size(1503, 407);
+			this.Controls.Add(this.textBoxConsole);
 			this.Controls.Add(this.buttonGround1Task1);
 			this.Controls.Add(this.buttonOpenArduinoPanel);
 			this.Controls.Add(this.textBoxValue2);
@@ -223,6 +235,7 @@
 		private System.Windows.Forms.TextBox textBoxValue2;
 		private System.Windows.Forms.Button buttonOpenArduinoPanel;
 		private System.Windows.Forms.Button buttonGround1Task1;
+		private System.Windows.Forms.TextBox textBoxConsole;
 	}
 }
 

@@ -71,6 +71,7 @@ CommandResult SerialPort::CheckAvailable()
 					Error::Stop();
 				}
 
+				Serial.println("PC#Motor#GetCommand#");
 				MotorPair::motorA.Move(dir1, buffer[2]);
 				MotorPair::motorB.Move(dir2, buffer[4]);
 
@@ -81,7 +82,7 @@ CommandResult SerialPort::CheckAvailable()
 				Motor::AllStop();
 
 				MotorResult returnResult(dir1, buffer[2], dir2, buffer[4], time);
-				Serial.println("PC#Motor#Finished");
+				Serial.println("PC#Motor#Finished#");
 				bufferLoc = 0;
 				for (int i = 0; i < BUFFER_SIZE; i++)
 				{

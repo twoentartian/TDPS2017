@@ -14,7 +14,7 @@ namespace WinForm_TDPS_2016_Test
 
 		private Arduino()
 		{
-			
+
 		}
 
 		private static Arduino _instance;
@@ -30,7 +30,7 @@ namespace WinForm_TDPS_2016_Test
 
 		public ArduinoBecomesFree FreeFunc;
 
-		private class SendArguements
+		public class SendArguements
 		{
 			public SendArguements(MotorDirection argDirA, int argSpeedA, MotorDirection argDirB, int argSpeedB, int argTime)
 			{
@@ -48,11 +48,19 @@ namespace WinForm_TDPS_2016_Test
 			public readonly int Time;
 		}
 
-		public void Send(MotorDirection dirA, int speedA, MotorDirection dirB, int speedB, int time)
+		private SendArguements previousSendArguements;
+
+		public void Send(SendArguements arg)
 		{
 			Thread sendThread = new Thread(SendTask);
 			sendThread.IsBackground = true;
-			sendThread.Start(new SendArguements(dirA, speedA, dirB, speedB, time));
+			previousSendArguements = arg;
+			sendThread.Start(previousSendArguements);
+		}
+
+		public void Send(MotorDirection dirA, int speedA, MotorDirection dirB, int speedB, int time)
+		{
+			Send(new SendArguements(dirA, speedA, dirB, speedB, time));
 		}
 
 		private void SendTask(object arg)
@@ -74,11 +82,12 @@ namespace WinForm_TDPS_2016_Test
 			              BroadcastService.Separator + realArg.Time + BroadcastService.Separator + Environment.NewLine;
 			BroadcastService broadcastService = BroadcastService.GetInstance();
 			broadcastService.BroadcastToInterNetwork(data);
+
 			BusySign = true;
 		}
 
+		private Thread releaseThread;
 		private bool _busySign = false;
-
 		public bool BusySign
 		{
 			get { return _busySign; }
@@ -87,15 +96,34 @@ namespace WinForm_TDPS_2016_Test
 				_busySign = value;
 				if (value)
 				{
-					
+					FormArduinoControlPanel.GetInstance().ArduinoBusyState.Text = "Arduino: Busy";
+					releaseThread = new Thread(AutoFreeFunc) {IsBackground = true};
+					releaseThread.Start();
 				}
 				else
 				{
+					FormArduinoControlPanel.GetInstance().ArduinoBusyState.Text = "Arduino: Free";
+					if (releaseThread.IsAlive)
+					{
+						if (Thread.CurrentThread == releaseThread)
+						{
+							FreeFunc?.Invoke();
+						}
+						releaseThread.Abort();
+					}
 					FreeFunc?.Invoke();
 				}
 			}
 		}
 
+		private void AutoFreeFunc()
+		{
+			Thread.Sleep(2000);
+			if (BusySign)
+			{
+				BusySign = false;
+			}
+		}
 
 	}
 }

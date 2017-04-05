@@ -38,6 +38,7 @@
 			this.comboBoxMotorB = new System.Windows.Forms.ComboBox();
 			this.labelSpeed = new System.Windows.Forms.Label();
 			this.labelTime = new System.Windows.Forms.Label();
+			this.labelArduino = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			// 
 			// buttonSend
@@ -125,11 +126,21 @@
 			this.labelTime.TabIndex = 9;
 			this.labelTime.Text = "Time (ms)";
 			// 
+			// labelArduino
+			// 
+			this.labelArduino.AutoSize = true;
+			this.labelArduino.Location = new System.Drawing.Point(12, 9);
+			this.labelArduino.Name = "labelArduino";
+			this.labelArduino.Size = new System.Drawing.Size(70, 13);
+			this.labelArduino.TabIndex = 10;
+			this.labelArduino.Text = "Arduino: Free";
+			// 
 			// FormArduinoControlPanel
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(591, 277);
+			this.Controls.Add(this.labelArduino);
 			this.Controls.Add(this.labelTime);
 			this.Controls.Add(this.labelSpeed);
 			this.Controls.Add(this.comboBoxMotorB);
@@ -160,5 +171,6 @@
 		private System.Windows.Forms.ComboBox comboBoxMotorB;
 		private System.Windows.Forms.Label labelSpeed;
 		private System.Windows.Forms.Label labelTime;
+		private System.Windows.Forms.Label labelArduino;
 	}
 }

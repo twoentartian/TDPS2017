@@ -27,7 +27,7 @@ using TimerManagerNamespace;
 
 namespace WinForm_TDPS_2016_TCPIP
 {
-	class Server
+	class TcpServer
 	{
 		#region Config
 
@@ -39,18 +39,18 @@ namespace WinForm_TDPS_2016_TCPIP
 
 		#region Singleton
 
-		private static Server _instance;
+		private static TcpServer _instance;
 
-		protected Server()
+		protected TcpServer()
 		{
 			Init();
 		}
 
-		public static Server GetInstance()
+		public static TcpServer GetInstance()
 		{
 			if (_instance == null)
 			{
-				_instance = new Server();
+				_instance = new TcpServer();
 			}
 			return _instance;
 		}
@@ -144,6 +144,125 @@ namespace WinForm_TDPS_2016_TCPIP
 		}
 	}
 
+	class UdpReceiver
+	{
+		#region Singleton
+
+		private UdpReceiver()
+		{
+			Start();
+		}
+
+		private static UdpReceiver _instance;
+
+		public static UdpReceiver GetInstance()
+		{
+			return _instance ?? (_instance = new UdpReceiver());
+		}
+
+		#endregion
+
+		#region Config
+
+		public static int receiveImgPort = 15001;
+		public const string Separator = "#";
+
+		#endregion
+
+		private UdpClient _udpClient;
+		public UdpClient MyUdpClient => _udpClient;
+		private Thread _receiveThread;
+		public Thread ReceiveThread => _receiveThread;
+
+		public void Start()
+		{
+			UdpManager tempUdpManager = UdpManager.GetInstance();
+			_udpClient = new UdpClient(new IPEndPoint(tempUdpManager.HostIpAddress, receiveImgPort));
+			_udpClient.Client.ReceiveBufferSize = 10000000;
+			_receiveThread = new Thread(Receive);
+			_receiveThread.IsBackground = true;
+			_receiveThread.Start();
+		}
+
+		private void Receive()
+		{
+			int totalPackNumber = 0;
+			int packCount = 0;
+			MemoryStream ms = new MemoryStream();
+			bool errorSign = false;
+			while (true)
+			{
+				IPEndPoint remote = new IPEndPoint(IPAddress.Any, 0);
+				byte[] data = _udpClient.Receive(ref remote);
+
+				if (data.Length == 10)
+				{
+					string dataString = Encoding.ASCII.GetString(data);
+					string[] separators = new[] {Separator};
+					string[] items = dataString.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+					if (items[0] == "Picture")
+					{
+						totalPackNumber = Convert.ToInt32(items[1]);
+						packCount = 0;
+						ms.Flush();
+						ms.Position = 0;
+						errorSign = false;
+					}
+					else
+					{
+						throw new LogicErrorException();
+					}
+				}
+				else
+				{
+					if (errorSign)
+					{
+						continue;
+					}
+					try
+					{
+						ms.Write(data, 0, data.Length);
+					}
+					catch (Exception e)
+					{
+						Console.WriteLine(e);
+						errorSign = true;
+						continue;
+					}
+
+					packCount++;
+					if (packCount == totalPackNumber)
+					{
+						try
+						{
+							System.Drawing.Image img = System.Drawing.Image.FromStream(ms);
+							TcpIpFileManager tempFileManager = TcpIpFileManager.GetInstance();
+							tempFileManager.AddTempFile(img);
+						}
+						catch (Exception e)
+						{
+							Console.WriteLine(e);
+							errorSign = true;
+							continue;
+						}
+						AForgeVideoSourceDevice.VideoSourceDevice.FlashTcpIpImage();
+						totalPackNumber = 0;
+					}
+
+
+				}
+
+
+			}
+		}
+
+		public void Stop()
+		{
+			_receiveThread.Abort();
+		}
+
+	}
+
 	class BroadcastService
 	{
 		#region Singleton
@@ -171,9 +290,11 @@ namespace WinForm_TDPS_2016_TCPIP
 		private int localPort = 15000;
 		private int BroadcastPort = 15878;
 
+
 		#endregion
 
-		private string content;
+		private string contentTcp;
+		private string contentUdp;
 		private Guid TimerGuid;
 		public const string Separator = "#";
 
@@ -186,10 +307,11 @@ namespace WinForm_TDPS_2016_TCPIP
 		{
 			//Set the local UDP port
 			UdpManager tempUdpManager = UdpManager.GetInstance();
-			tempUdpManager.InitUdp(localPort, UdpReceive);
+			tempUdpManager.InitUdp(localPort, UdpReceiveCommand);
 
 			//Generate the broadcast info
-			content = ("Server" + Separator + tempUdpManager.HostIpAddress + Separator + Server.GetInstance().ServerPort + Separator + Environment.NewLine);
+			contentTcp = ("Server" + Separator + tempUdpManager.HostIpAddress + Separator + TcpServer.GetInstance().ServerPort + Separator + Environment.NewLine);
+			contentUdp = ("UdpIMG" + Separator + tempUdpManager.HostIpAddress + Separator + UdpReceiver.receiveImgPort + Separator + Environment.NewLine);
 
 			//Set the timer
 			TimerManager tempTimerManager = TimerManager.GetInstance();
@@ -198,9 +320,7 @@ namespace WinForm_TDPS_2016_TCPIP
 
 		private static string udpReceiveBuffer;
 
-
-
-		private static void UdpReceive(byte[] dataBytes)
+		private static void UdpReceiveCommand(byte[] dataBytes)
 		{
 			//TODO: add function when UDP receive message.
 			string data = Encoding.ASCII.GetString(dataBytes);
@@ -212,13 +332,13 @@ namespace WinForm_TDPS_2016_TCPIP
 			string[] items = udpReceiveBuffer.Split(Separators, StringSplitOptions.RemoveEmptyEntries);
 			if (items[0] == "Motor")
 			{
-				if (items[1] == "Finished\r")
+				if (items[1] == "Finished")
 				{
 					Arduino.GetInstance().BusySign = false;
 				}
-				else
+				else if(items[1] == "GetCommand")
 				{
-					
+
 				}
 			}
 			else
@@ -232,7 +352,8 @@ namespace WinForm_TDPS_2016_TCPIP
 		private void BroadcastTimerOnElapsed(object arg)
 		{
 			UdpManager tempUdpManager = UdpManager.GetInstance();
-			tempUdpManager.Send(IPAddress.Broadcast, BroadcastPort, content);
+			tempUdpManager.Send(IPAddress.Broadcast, BroadcastPort, contentTcp);
+			tempUdpManager.Send(IPAddress.Broadcast, BroadcastPort, contentUdp);
 		}
 
 		public void BroadcastToInterNetwork(string data)
@@ -246,5 +367,8 @@ namespace WinForm_TDPS_2016_TCPIP
 			TimerManager tempTimerManager = TimerManager.GetInstance();
 			tempTimerManager.StopTimer(TimerGuid);
 		}
+
+
+
 	}
 }
