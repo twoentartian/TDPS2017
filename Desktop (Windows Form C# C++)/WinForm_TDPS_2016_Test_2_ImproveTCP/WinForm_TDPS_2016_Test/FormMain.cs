@@ -16,7 +16,6 @@ using System.Windows.Forms.VisualStyles;
 using AForge.Controls;
 using AForgeVideoSourceDevice;
 using Emgu.CV.CvEnum;
-
 using StateManagerSpace;
 using TempFileManagerSpace;
 using TcpIpFileManagerSpace;
