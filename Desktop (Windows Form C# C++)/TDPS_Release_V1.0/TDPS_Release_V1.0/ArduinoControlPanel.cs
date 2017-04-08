@@ -8,9 +8,8 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using WinForm_TDPS_2016_TCPIP;
 
-namespace WinForm_TDPS_2016_Test
+namespace TDPS_Release_V1._0
 {
 	public enum MotorDirection
 	{
@@ -18,15 +17,15 @@ namespace WinForm_TDPS_2016_Test
 		Backward = 1
 	};
 
-	public partial class FormArduinoControlPanel : Form
+	public sealed partial class FormArduinoControlPanel : Form
 	{
 		#region Singleton
 
-		protected static FormArduinoControlPanel Instance;
+		private static FormArduinoControlPanel _instance;
 
 		public static FormArduinoControlPanel GetInstance()
 		{
-			return Instance ?? (Instance = new FormArduinoControlPanel());
+			return _instance ?? (_instance = new FormArduinoControlPanel());
 		}
 
 		private FormArduinoControlPanel()
@@ -42,7 +41,55 @@ namespace WinForm_TDPS_2016_Test
 
 		#region Label
 
-		public Label ArduinoBusyState => labelArduino;
+		public delegate void WriteToBusyLabelHandler(string info);
+		public void WriteToBusyLabel(string info)
+		{
+			if (labelArduinoBusy.InvokeRequired == true)
+			{
+				WriteToBusyLabelHandler set = new WriteToBusyLabelHandler(WriteToBusyLabel);//委托的方法参数应和SetCalResult一致
+				labelArduinoBusy.Invoke(set, new object[] {info}); //此方法第二参数用于传入方法,代替形参result
+			}
+			else
+			{
+				labelArduinoBusy.Text = "Arduino: " + info;
+			}
+		}
+
+		#endregion
+
+		#region Button
+
+		public delegate void ChangeButtonEnableStateHandler(bool state);
+		public void ChangeButtonEnableState(bool state)
+		{
+			if (buttonSend.InvokeRequired == true)
+			{
+				ChangeButtonEnableStateHandler set = new ChangeButtonEnableStateHandler(ChangeButtonEnableState);//委托的方法参数应和SetCalResult一致
+				buttonSend.Invoke(set, new object[] { state }); //此方法第二参数用于传入方法,代替形参result
+			}
+			else
+			{
+				buttonSend.Enabled = state;
+			}
+		}
+
+		#endregion
+
+		#region Textbox
+
+		public delegate void WriteToConsoleHandler(string info);
+		public void WriteToConsole(string info)
+		{
+			if (textBoxArduinoConsole.InvokeRequired == true)
+			{
+				WriteToConsoleHandler set = new WriteToConsoleHandler(WriteToConsole);//委托的方法参数应和SetCalResult一致
+				textBoxArduinoConsole.Invoke(set, new object[] { info }); //此方法第二参数用于传入方法,代替形参result
+			}
+			else
+			{
+				textBoxArduinoConsole.AppendText(info + Environment.NewLine);
+			}
+		}
 
 		#endregion
 
@@ -59,13 +106,11 @@ namespace WinForm_TDPS_2016_Test
 			textBoxSpeedMotorA.Text = MaxSpeed.ToString();
 			textBoxSpeedMotorB.Text = MaxSpeed.ToString();
 			textBoxMotorTime.Text = 1000.ToString();
-
-
 		}
 
 		private void FormArduinoControlPanel_FormClosing(object sender, FormClosingEventArgs e)
 		{
-			Instance.Hide();
+			_instance.Hide();
 			e.Cancel = true;
 		}
 
@@ -101,9 +146,7 @@ namespace WinForm_TDPS_2016_Test
 			MotorDirection dirA = (MotorDirection) comboBoxMotorA.SelectedIndex;
 			MotorDirection dirB = (MotorDirection) comboBoxMotorB.SelectedIndex;
 			Arduino.GetInstance().Send(dirA, speedA, dirB, speedB, time);
-
 		}
-
 
 	}
 }

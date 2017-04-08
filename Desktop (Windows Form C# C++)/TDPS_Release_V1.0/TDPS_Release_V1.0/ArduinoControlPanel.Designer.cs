@@ -1,4 +1,4 @@
-﻿namespace WinForm_TDPS_2016_Test
+﻿namespace TDPS_Release_V1._0
 {
 	partial class FormArduinoControlPanel
 	{
@@ -38,7 +38,8 @@
 			this.comboBoxMotorB = new System.Windows.Forms.ComboBox();
 			this.labelSpeed = new System.Windows.Forms.Label();
 			this.labelTime = new System.Windows.Forms.Label();
-			this.labelArduino = new System.Windows.Forms.Label();
+			this.labelArduinoBusy = new System.Windows.Forms.Label();
+			this.textBoxArduinoConsole = new System.Windows.Forms.TextBox();
 			this.SuspendLayout();
 			// 
 			// buttonSend
@@ -126,21 +127,31 @@
 			this.labelTime.TabIndex = 9;
 			this.labelTime.Text = "Time (ms)";
 			// 
-			// labelArduino
+			// labelArduinoBusy
 			// 
-			this.labelArduino.AutoSize = true;
-			this.labelArduino.Location = new System.Drawing.Point(12, 9);
-			this.labelArduino.Name = "labelArduino";
-			this.labelArduino.Size = new System.Drawing.Size(70, 13);
-			this.labelArduino.TabIndex = 10;
-			this.labelArduino.Text = "Arduino: Free";
+			this.labelArduinoBusy.AutoSize = true;
+			this.labelArduinoBusy.Location = new System.Drawing.Point(20, 13);
+			this.labelArduinoBusy.Name = "labelArduinoBusy";
+			this.labelArduinoBusy.Size = new System.Drawing.Size(70, 13);
+			this.labelArduinoBusy.TabIndex = 10;
+			this.labelArduinoBusy.Text = "Arduino: Free";
+			// 
+			// textBoxArduinoConsole
+			// 
+			this.textBoxArduinoConsole.Location = new System.Drawing.Point(335, 29);
+			this.textBoxArduinoConsole.Multiline = true;
+			this.textBoxArduinoConsole.Name = "textBoxArduinoConsole";
+			this.textBoxArduinoConsole.ReadOnly = true;
+			this.textBoxArduinoConsole.Size = new System.Drawing.Size(244, 236);
+			this.textBoxArduinoConsole.TabIndex = 11;
 			// 
 			// FormArduinoControlPanel
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(591, 277);
-			this.Controls.Add(this.labelArduino);
+			this.Controls.Add(this.textBoxArduinoConsole);
+			this.Controls.Add(this.labelArduinoBusy);
 			this.Controls.Add(this.labelTime);
 			this.Controls.Add(this.labelSpeed);
 			this.Controls.Add(this.comboBoxMotorB);
@@ -171,6 +182,7 @@
 		private System.Windows.Forms.ComboBox comboBoxMotorB;
 		private System.Windows.Forms.Label labelSpeed;
 		private System.Windows.Forms.Label labelTime;
-		private System.Windows.Forms.Label labelArduino;
+		private System.Windows.Forms.Label labelArduinoBusy;
+		private System.Windows.Forms.TextBox textBoxArduinoConsole;
 	}
 }

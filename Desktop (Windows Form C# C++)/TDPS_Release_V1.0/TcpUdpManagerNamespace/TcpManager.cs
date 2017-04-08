@@ -38,6 +38,10 @@ namespace TcpUdpManagerNamespace
 
 		#region Property
 
+		/// <summary>
+		/// argClient is an instance of TcpClientWithGuid.
+		/// </summary>
+		/// <param name="argClient"></param>
 		public delegate void ListenTaskDelegate(object argClient);
 
 		public delegate void ServerNewClient(EndPoint argIpEndPoint);
@@ -107,7 +111,7 @@ namespace TcpUdpManagerNamespace
 			public Thread ReceiveThread = null;
 			public TcpClient TcpClient = null;
 			public NetworkStream TcpStream = null;
-			public Guid Guid = System.Guid.Empty;
+			public Guid Guid = Guid.Empty;
 			public bool SignOccupied = false;
 
 			/// <summary>
@@ -122,13 +126,6 @@ namespace TcpUdpManagerNamespace
 				}
 				Guid = Guid.Empty;
 				SignOccupied = false;
-				if (ReceiveThread != null)
-				{
-					if (ReceiveThread.IsAlive)
-					{
-						ReceiveThread.Abort();
-					}
-				}
 			}
 		}
 
@@ -137,7 +134,8 @@ namespace TcpUdpManagerNamespace
 		/// </summary>
 		/// <param name="argPort"></param>
 		/// <param name="argListenDelegate"></param>
-		public void InitTcpServer(int argPort, ListenTaskDelegate argListenDelegate)
+		/// <param name="argNewClient"></param>
+		public void InitTcpServer(int argPort, ListenTaskDelegate argListenDelegate, ServerNewClient argNewClient)
 		{
 			if (_hostName == null || _hostIpAddress == null)
 			{
@@ -148,6 +146,7 @@ namespace TcpUdpManagerNamespace
 			_hostServerEndPoint = new IPEndPoint(_hostIpAddress, argPort);
 			_hostTcpServer = new TcpListener(_hostServerEndPoint);
 			_tcpServerReceiveDelegate = argListenDelegate;
+			_tcpServerNewClient = argNewClient;
 
 			_hostTcpServer.Start(MaxClient);
 			TcpServerStartListenTask();
@@ -187,6 +186,7 @@ namespace TcpUdpManagerNamespace
 					{
 						_tcpClientArray[i].Guid = Guid.NewGuid();
 						_tcpClientArray[i].TcpClient = tempTcpClient;
+						_tcpClientArray[i].TcpClient.ReceiveBufferSize = 10000000;
 						_tcpClientArray[i].SignOccupied = true;
 						_tcpClientArray[i].TcpStream = tempTcpClient.GetStream();
 						_tcpClientArray[i].ReceiveThread = new Thread(TcpServerReceiveMessage) { IsBackground = true };
@@ -240,7 +240,7 @@ namespace TcpUdpManagerNamespace
 		/// </summary>
 		/// <param name="argPort"></param>
 		/// <returns></returns>
-		private TcpClientWithGuid GetRemoteTcpClient(int argPort)
+		private TcpClientWithGuid TcpServerGetRemoteTcpClient(int argPort)
 		{
 			foreach (TcpClientWithGuid client in _tcpClientArray)
 			{
@@ -266,7 +266,7 @@ namespace TcpUdpManagerNamespace
 		/// </summary>
 		/// <param name="argAddress"></param>
 		/// <returns></returns>
-		private TcpClientWithGuid GetRemoteTcpClient(IPAddress argAddress)
+		private TcpClientWithGuid TcpServerGetRemoteTcpClient(IPAddress argAddress)
 		{
 			foreach (TcpClientWithGuid client in _tcpClientArray)
 			{
@@ -292,7 +292,7 @@ namespace TcpUdpManagerNamespace
 		/// </summary>
 		/// <param name="argGuid"></param>
 		/// <returns></returns>
-		private TcpClientWithGuid GetRemoteTcpClient(Guid argGuid)
+		private TcpClientWithGuid TcpServerGetRemoteTcpClient(Guid argGuid)
 		{
 			foreach (TcpClientWithGuid client in _tcpClientArray)
 			{
@@ -318,7 +318,7 @@ namespace TcpUdpManagerNamespace
 		/// <param name="argPort"></param>
 		public void TcpServerStopClient(int argPort)
 		{
-			GetRemoteTcpClient(argPort).Stop();
+			TcpServerGetRemoteTcpClient(argPort).Stop();
 		}
 
 		/// <summary>
@@ -327,7 +327,7 @@ namespace TcpUdpManagerNamespace
 		/// <param name="argAddress"></param>
 		public void TcpServerStopClient(IPAddress argAddress)
 		{
-			GetRemoteTcpClient(argAddress).Stop();
+			TcpServerGetRemoteTcpClient(argAddress).Stop();
 		}
 
 		/// <summary>
@@ -336,7 +336,7 @@ namespace TcpUdpManagerNamespace
 		/// <param name="argGuid"></param>
 		public void TcpServerStopClient(Guid argGuid)
 		{
-			GetRemoteTcpClient(argGuid).Stop();
+			TcpServerGetRemoteTcpClient(argGuid).Stop();
 		}
 
 		/// <summary>
@@ -346,7 +346,7 @@ namespace TcpUdpManagerNamespace
 		/// <param name="message"></param>
 		public void TcpServerSend(int argPort, string message)
 		{
-			TcpClientWithGuid client = GetRemoteTcpClient(argPort);
+			TcpClientWithGuid client = TcpServerGetRemoteTcpClient(argPort);
 			byte[] messageBytes = Encoding.ASCII.GetBytes(message);
 			client.TcpStream.Write(messageBytes, 0, messageBytes.Length);
 		}
@@ -358,7 +358,7 @@ namespace TcpUdpManagerNamespace
 		/// <param name="message"></param>
 		public void TcpServerSend(IPAddress argAddress, string message)
 		{
-			TcpClientWithGuid client = GetRemoteTcpClient(argAddress);
+			TcpClientWithGuid client = TcpServerGetRemoteTcpClient(argAddress);
 			byte[] messageBytes = Encoding.ASCII.GetBytes(message);
 			client.TcpStream.Write(messageBytes, 0, messageBytes.Length);
 		}
@@ -370,7 +370,7 @@ namespace TcpUdpManagerNamespace
 		/// <param name="message"></param>
 		public void TcpServerSend(Guid argGuid, string message)
 		{
-			TcpClientWithGuid client = GetRemoteTcpClient(argGuid);
+			TcpClientWithGuid client = TcpServerGetRemoteTcpClient(argGuid);
 			byte[] messageBytes = Encoding.ASCII.GetBytes(message);
 			client.TcpStream.Write(messageBytes, 0, messageBytes.Length);
 		}
@@ -382,7 +382,7 @@ namespace TcpUdpManagerNamespace
 		/// <param name="message"></param>
 		public void TcpServerSend(int argPort, byte[] message)
 		{
-			TcpClientWithGuid client = GetRemoteTcpClient(argPort);
+			TcpClientWithGuid client = TcpServerGetRemoteTcpClient(argPort);
 			client.TcpStream.Write(message, 0, message.Length);
 		}
 
@@ -393,7 +393,7 @@ namespace TcpUdpManagerNamespace
 		/// <param name="message"></param>
 		public void TcpServerSend(IPAddress argAddress, byte[] message)
 		{
-			TcpClientWithGuid client = GetRemoteTcpClient(argAddress);
+			TcpClientWithGuid client = TcpServerGetRemoteTcpClient(argAddress);
 			client.TcpStream.Write(message, 0, message.Length);
 		}
 
@@ -404,7 +404,7 @@ namespace TcpUdpManagerNamespace
 		/// <param name="message"></param>
 		public void TcpServerSend(Guid argGuid, byte[] message)
 		{
-			TcpClientWithGuid client = GetRemoteTcpClient(argGuid);
+			TcpClientWithGuid client = TcpServerGetRemoteTcpClient(argGuid);
 			client.TcpStream.Write(message, 0, message.Length);
 		}
 
@@ -433,7 +433,7 @@ namespace TcpUdpManagerNamespace
 		/// <returns></returns>
 		public Guid TcpServerGetGuid(int argPort)
 		{
-			return GetRemoteTcpClient(argPort).Guid;
+			return TcpServerGetRemoteTcpClient(argPort).Guid;
 		}
 
 		/// <summary>
@@ -443,7 +443,7 @@ namespace TcpUdpManagerNamespace
 		/// <returns></returns>
 		public Guid TcpServerGetGuid(IPAddress argAddress)
 		{
-			return GetRemoteTcpClient(argAddress).Guid;
+			return TcpServerGetRemoteTcpClient(argAddress).Guid;
 		}
 
 		#endregion
@@ -530,8 +530,6 @@ namespace TcpUdpManagerNamespace
 				{
 					break;
 				}
-
-				//TODO: Add delegate
 				_tcpClientReceiveDelegate(Encoding.ASCII.GetBytes(message));
 			}
 			ns.Dispose();

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace WinForm_TDPS_2016_Test
+namespace TDPS_Release_V1._0
 {
 	class LogicErrorException : ApplicationException
 	{
@@ -16,7 +16,7 @@ namespace WinForm_TDPS_2016_Test
 		
 	}
 
-	class VideoSourceDeviceNotWorking : ApplicationException
+	class NoClientConnected : ApplicationException
 	{
 		
 	}

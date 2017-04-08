@@ -108,8 +108,6 @@ namespace TcpUdpManagerNamespace
 			{
 				IPEndPoint remotEndPoint = new IPEndPoint(IPAddress.Any, 0);
 				byte[] data = _hostUdpClient.Receive(ref remotEndPoint);
-
-				//TODO: add code for listening
 				try
 				{
 					_receiveDelegate(data);

@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using WinForm_TDPS_2016_TCPIP;
+using System.Windows.Forms;
+using TcpUdpManagerNamespace;
 
-namespace WinForm_TDPS_2016_Test
+namespace TDPS_Release_V1._0
 {
 	sealed class Arduino
 	{
@@ -26,102 +27,28 @@ namespace WinForm_TDPS_2016_Test
 
 		#endregion
 
-		public delegate void ArduinoBecomesFree();
+		#region Property
 
-		public ArduinoBecomesFree FreeFunc;
-
-		public class SendArguements
+		private const string Separator = "#";
+		private static readonly string[] Separators =
 		{
-			public SendArguements(MotorDirection argDirA, int argSpeedA, MotorDirection argDirB, int argSpeedB, int argTime)
-			{
-				DirA = argDirA;
-				SpeedA = argSpeedA;
-				DirB = argDirB;
-				SpeedB = argSpeedB;
-				Time = argTime;
-			}
+			Separator
+		};
 
-			public readonly MotorDirection DirA;
-			public readonly int SpeedA;
-			public readonly MotorDirection DirB;
-			public readonly int SpeedB;
-			public readonly int Time;
-		}
-
-		private SendArguements previousSendArguements;
-
-		public void Send(SendArguements arg)
-		{
-			Thread sendThread = new Thread(SendTask);
-			sendThread.IsBackground = true;
-			previousSendArguements = arg;
-			sendThread.Start(previousSendArguements);
-		}
+		#endregion
 
 		public void Send(MotorDirection dirA, int speedA, MotorDirection dirB, int speedB, int time)
 		{
-			Send(new SendArguements(dirA, speedA, dirB, speedB, time));
-		}
-
-		private void SendTask(object arg)
-		{
-			SendArguements realArg = (SendArguements) arg;
-			while (true)
+			if (StateManager.TcpState.IsClientConnected == true)
 			{
-				if (!BusySign)
-				{
-					break;
-				}
-				else
-				{
-					Thread.Sleep(100);
-				}
+				string data = "Motor" + Separator + (int) dirA + Separator + speedA + Separator + (int) dirB + Separator + speedB + Separator + time + Separator + Environment.NewLine;
+				TcpManager tempTcpManager = TcpManager.GetInstance();
+				tempTcpManager.TcpServerSend(InterNetwork.GetInstance().GetRemoteClient(), data);
+				StateManager.ArduinoState.IsBusy = true;
 			}
-			string data = "Motor" + BroadcastService.Separator + (int) realArg.DirA + BroadcastService.Separator + realArg.SpeedA +
-			              BroadcastService.Separator + (int) realArg.DirB + BroadcastService.Separator + realArg.SpeedB +
-			              BroadcastService.Separator + realArg.Time + BroadcastService.Separator + Environment.NewLine;
-			BroadcastService broadcastService = BroadcastService.GetInstance();
-			broadcastService.BroadcastToInterNetwork(data);
-
-			BusySign = true;
-		}
-
-		private Thread releaseThread;
-		private bool _busySign = false;
-		public bool BusySign
-		{
-			get { return _busySign; }
-			set
+			else
 			{
-				_busySign = value;
-				if (value)
-				{
-					FormArduinoControlPanel.GetInstance().ArduinoBusyState.Text = "Arduino: Busy";
-					releaseThread = new Thread(AutoFreeFunc) {IsBackground = true};
-					releaseThread.Start();
-				}
-				else
-				{
-					FormArduinoControlPanel.GetInstance().ArduinoBusyState.Text = "Arduino: Free";
-					if (releaseThread.IsAlive)
-					{
-						if (Thread.CurrentThread == releaseThread)
-						{
-							FreeFunc?.Invoke();
-						}
-						releaseThread.Abort();
-					}
-					FreeFunc?.Invoke();
-				}
-			}
-		}
-
-		private void AutoFreeFunc()
-		{
-			Thread.Sleep(2000);
-			if (BusySign)
-			{
-				BusySign = false;
+				FormArduinoControlPanel.GetInstance().WriteToConsole("Error: No Client Connected !");
 			}
 		}
 

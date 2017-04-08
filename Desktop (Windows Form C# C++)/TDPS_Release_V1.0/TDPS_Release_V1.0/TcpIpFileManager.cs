@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
+using Emgu.CV;
+using Emgu.CV.Structure;
 
-namespace TcpIpFileManagerSpace
+namespace TDPS_Release_V1._0
 {
 	class TcpIpFileManager
 	{
@@ -35,7 +33,18 @@ namespace TcpIpFileManagerSpace
 
 		private readonly string _tcpIpFilePath = Environment.CurrentDirectory + Path.DirectorySeparatorChar + _tempFolder + Path.DirectorySeparatorChar + "InterNetwork.jpg";
 
-		public string TcpIpFilePath => _tcpIpFilePath;
+		public string FilePath => _tcpIpFilePath;
+
+		#region Porperty
+
+		public bool IsFileFresh = false;
+
+		public delegate void NewFileComes(string path);
+
+		public NewFileComes NewFileComesEvent;
+
+		#endregion
+
 
 		public void Init()
 		{
@@ -48,6 +57,7 @@ namespace TcpIpFileManagerSpace
 			{
 				File.Delete(tempFile);
 			}
+			IsFileFresh = false;
 		}
 
 		public void AddTempFile(Image argImage)
@@ -55,6 +65,8 @@ namespace TcpIpFileManagerSpace
 			FileStream fs = File.Create(_tcpIpFilePath);
 			argImage.Save(fs, ImageFormat.Jpeg);
 			fs.Close();
+			NewFileComesEvent?.Invoke(_tcpIpFilePath);
+			IsFileFresh = true;
 		}
 	}
 }

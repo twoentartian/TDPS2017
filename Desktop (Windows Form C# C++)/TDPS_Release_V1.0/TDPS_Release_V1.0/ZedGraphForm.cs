@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using ZedGraph;
 
-namespace WinForm_TDPS_2016_Test
+namespace TDPS_Release_V1._0
 {
 	public partial class ZedGraphForm : Form
 	{
