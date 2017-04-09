@@ -82,7 +82,7 @@ namespace TDPS_Release_V1._0
 			sampleThread.Start();
 		}
 
-		private void SampleThreadFunc(object obj)
+		public void SampleThreadFunc(object obj)
 		{
 			if (StateManager.TcpState.IsClientConnected)
 			{
@@ -103,13 +103,18 @@ namespace TDPS_Release_V1._0
 					Thread.Sleep(100);
 				}
 			}
-
 			//When the file is ready
 			Tdps.T1G1();
+			TcpIpFileManager.GetInstance().IsFileFresh = false;
 
-			
 
 
+
+		}
+
+		private void buttonAutoSample_Click(object sender, EventArgs e)
+		{
+			StateManager.AutoSampleState.IsOn = !StateManager.AutoSampleState.IsOn;
 		}
 
 
@@ -137,6 +142,20 @@ namespace TDPS_Release_V1._0
 			else
 			{
 				buttonAutoSample.Enabled = state;
+			}
+		}
+
+		public delegate void ChangeButtonTextHandler(string text);
+		public void ChangeAutoSampleButtonText(string text)
+		{
+			if (buttonAutoSample.InvokeRequired == true)
+			{
+				ChangeButtonTextHandler set = new ChangeButtonTextHandler(ChangeAutoSampleButtonText);//委托的方法参数应和SetCalResult一致
+				buttonAutoSample.Invoke(set, new object[] { text }); //此方法第二参数用于传入方法,代替形参result
+			}
+			else
+			{
+				buttonAutoSample.Text = text;
 			}
 		}
 		#endregion
@@ -266,6 +285,7 @@ namespace TDPS_Release_V1._0
 		}
 
 		#endregion
+
 
 	}
 }

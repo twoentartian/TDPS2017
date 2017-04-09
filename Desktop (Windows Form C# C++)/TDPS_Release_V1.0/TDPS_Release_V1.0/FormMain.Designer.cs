@@ -97,6 +97,7 @@
 			this.buttonAutoSample.TabIndex = 5;
 			this.buttonAutoSample.Text = "Auto Sample: off";
 			this.buttonAutoSample.UseVisualStyleBackColor = true;
+			this.buttonAutoSample.Click += new System.EventHandler(this.buttonAutoSample_Click);
 			// 
 			// buttonArduino
 			// 
@@ -120,6 +121,7 @@
 			this.Controls.Add(this.pictureBoxOutput2);
 			this.Controls.Add(this.pictureBoxOutput1);
 			this.Controls.Add(this.pictureBoxRaw);
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
 			this.Name = "FormMain";
 			this.Text = "TDPS Release Version 1.0";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormMain_FormClosing);

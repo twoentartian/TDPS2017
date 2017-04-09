@@ -43,6 +43,9 @@ namespace TDPS_Release_V1._0
 
 		public NewFileComes NewFileComesEvent;
 
+		private Image _nowImage;
+		public Image NowImage => _nowImage;
+
 		#endregion
 
 
@@ -62,9 +65,11 @@ namespace TDPS_Release_V1._0
 
 		public void AddTempFile(Image argImage)
 		{
+			_nowImage = argImage;
 			FileStream fs = File.Create(_tcpIpFilePath);
 			argImage.Save(fs, ImageFormat.Jpeg);
 			fs.Close();
+			fs.Dispose();
 			NewFileComesEvent?.Invoke(_tcpIpFilePath);
 			IsFileFresh = true;
 		}

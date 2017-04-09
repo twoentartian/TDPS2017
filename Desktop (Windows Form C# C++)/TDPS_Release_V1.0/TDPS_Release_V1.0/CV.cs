@@ -137,6 +137,19 @@ namespace TDPS_Release_V1._0
 		}
 	}
 
+	/// <summary>
+	/// Detect line results.
+	/// </summary>
+	class DetectLineResult
+	{
+		public readonly LineSegment2D[] Line;
+
+		public DetectLineResult(LineSegment2D[] argLines)
+		{
+			Line = argLines;
+		}
+	}
+
 	#endregion
 
 	/// <summary>
@@ -153,12 +166,7 @@ namespace TDPS_Release_V1._0
 		#endregion
 
 		#region Func
-		/// <summary>
-		/// This method is a sub in LBP function.
-		/// </summary>
-		/// <param name="center"></param>
-		/// <param name="target"></param>
-		/// <returns></returns>
+		///
 		private static int LbpComparer(Byte center, Byte target)
 		{
 			if (center >= target)
@@ -212,16 +220,56 @@ namespace TDPS_Release_V1._0
 		/// <param name="argPath"></param>
 		/// <param name="argtMode"></param>
 		/// <returns></returns>
-		public static DetectBasicEleementResult DetectBasicElement(string argPath, DetectMode argtMode)
+		public static DetectBasicEleementResult DetectBasicElement(string argPath, DetectMode argMode)
+		{
+			//Load the image from file and resize it for display
+			Image<Rgb, byte> img = new Image<Rgb, byte>(argPath).Resize(400, 400, Emgu.CV.CvEnum.Inter.Linear, true);
+			return DetectBasicElement(img, argMode);
+		}
+
+		/// <summary>
+		/// Detect lines.
+		/// </summary>
+		/// <param name="argImage"></param>
+		/// <returns></returns>
+		public static DetectLineResult DetectLine(Image<Gray, Byte> argImage)
+		{
+			Image<Rgb, Byte> grayImage = Image<Rgb, byte>.FromIplImagePtr(argImage);
+
+			UMat uimage = new UMat();
+			CvInvoke.CvtColor(grayImage, uimage, ColorConversion.Bgr2Gray);
+			UMat pyrDown = new UMat();
+			CvInvoke.PyrDown(uimage, pyrDown);
+			CvInvoke.PyrUp(pyrDown, uimage);
+			double cannyThreshold = 180.0;
+
+			double cannyThresholdLinking = 120.0;
+			UMat cannyEdges = new UMat();
+			CvInvoke.Canny(uimage, cannyEdges, cannyThreshold, cannyThresholdLinking);
+
+			LineSegment2D[] lines = CvInvoke.HoughLinesP(cannyEdges,
+				1, //Distance resolution in pixel-related units
+				Math.PI / 45.0, //Angle resolution measured in radians.
+				20, //threshold
+				30, //min Line width
+				10); //gap between lines
+			return new DetectLineResult(lines);
+
+		}
+
+		/// <summary>
+		/// Detect basic elements (such as circlr, line, rectangle and triangle)
+		/// </summary>
+		/// <param name="argImage"></param>
+		/// <param name="argMode"></param>
+		/// <returns></returns>
+		public static DetectBasicEleementResult DetectBasicElement(Image<Rgb, Byte> argImage, DetectMode argMode)
 		{
 			StringBuilder msgBuilder = new StringBuilder("Performance: ");
 
-			//Load the image from file and resize it for display
-			Image<Bgr, byte> img = new Image<Bgr, byte>(argPath).Resize(400, 400, Emgu.CV.CvEnum.Inter.Linear, true);
-
 			//Convert the image to grayscale and filter out the noise
 			UMat uimage = new UMat();
-			CvInvoke.CvtColor(img, uimage, ColorConversion.Bgr2Gray);
+			CvInvoke.CvtColor(argImage, uimage, ColorConversion.Bgr2Gray);
 
 			//use image pyr to remove noise
 			UMat pyrDown = new UMat();
@@ -235,7 +283,7 @@ namespace TDPS_Release_V1._0
 			CircleF[] circles = null;
 			Stopwatch watch = new Stopwatch();
 			double cannyThreshold = 180.0;
-			if (argtMode == DetectMode.IncludeCircle)
+			if (argMode == DetectMode.IncludeCircle)
 			{
 				watch = Stopwatch.StartNew();
 				double circleAccumulatorThreshold = 120;
@@ -314,7 +362,8 @@ namespace TDPS_Release_V1._0
 			msgBuilder.Append(String.Format("Triangles & Rectangles - {0} ms; ", watch.ElapsedMilliseconds));
 			#endregion
 
-			return new DetectBasicEleementResult(img, triangleList, boxList, circles, lines, msgBuilder.ToString());
+			Image<Bgr, Byte> output = new Image<Bgr, byte>(argImage.Bitmap);
+			return new DetectBasicEleementResult(output, triangleList, boxList, circles, lines, msgBuilder.ToString());
 		}
 
 		/// <summary>
@@ -435,6 +484,7 @@ namespace TDPS_Release_V1._0
 			Image<Gray, Byte> cannyImg = new Image<Gray, byte>(argImage.Size);
 			CannyTextureAnalysisResult bestCannyTextureAnalysisResult = null;
 			double bestCannyTextureAnalysisResultValue = 0;
+			bool FirstSign = true;
 			foreach (var singleThresholdValue1 in threshold1)
 			{
 				foreach (var singleThresholdValue2 in threshold2)
@@ -455,7 +505,12 @@ namespace TDPS_Release_V1._0
 						}
 					}
 					double ave = (double) sum / tempCannyTextureAnalysisResult.Data.Length;
-
+					if (FirstSign)
+					{
+						bestCannyTextureAnalysisResultValue = max / ave;
+						bestCannyTextureAnalysisResult = tempCannyTextureAnalysisResult;
+						FirstSign = false;
+					}
 					if (max / ave > factorBetweenMinAndMax && factorBetweenMinAndMax != 0)
 					{
 						return tempCannyTextureAnalysisResult;

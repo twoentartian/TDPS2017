@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Emgu.CV;
+using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
 
 namespace TDPS_Release_V1._0
@@ -13,17 +16,8 @@ namespace TDPS_Release_V1._0
 		private static float _previousDiff;
 		public static void T1G1()
 		{
-			Image<Rgb, Byte> rawImage;
-			string tempPath = TcpIpFileManager.GetInstance().FilePath;
-			try
-			{
-				rawImage = new Image<Rgb, byte>(tempPath);
-			}
-			catch (Exception exception)
-			{
-				Console.WriteLine(exception);
-				return;
-			}
+			Image<Rgb, Byte> rawImage = new Image<Rgb, byte>((Bitmap)TcpIpFileManager.GetInstance().NowImage);
+			FormMain.GetInstance().WriteToPictureRaw(rawImage);
 
 			double[] threshold1 = new double[]
 			{
@@ -34,12 +28,21 @@ namespace TDPS_Release_V1._0
 				200,300,400
 			};
 			CannyTextureAnalysisResult textureAnalysisResult = Cv.AutoCannyTextureAnalysis(rawImage, threshold1, threshold2, 0);
-			float diff = textureAnalysisResult.Diff;
+
+			DetectLineResult lineResult = Cv.DetectLine(textureAnalysisResult.Img);
+			Image<Gray, Byte> outputImage = textureAnalysisResult.Img;
+			foreach (LineSegment2D line in lineResult.Line)
+			{
+				outputImage.Draw(line, new Gray(0), 2);
+			}
+			CannyTextureAnalysisResult reduceLinesResult = new CannyTextureAnalysisResult(outputImage, "Reduce the lines");
+
+
+			float diff = reduceLinesResult.Diff;
 			FormMain.GetInstance().WriteToConsole("Diff = " + diff);
-			FormMain.GetInstance().WriteToPicture1(textureAnalysisResult.Img);
+			FormMain.GetInstance().WriteToPicture1(reduceLinesResult.Img);
 
-
-			//threa
+			//threshold
 			float threshold = 0.05f;
 			if (Math.Abs(diff) > threshold)
 			{
@@ -73,5 +76,23 @@ namespace TDPS_Release_V1._0
 			_previousDiff = diff;
 		}
 
+		public static TimerCallback AutoSampleTimerCallback = AutoSampleTimerCallbackFunc;
+
+		private static bool AutoSampleTimerCallbackFuncSign = false;
+		private static void AutoSampleTimerCallbackFunc(object state)
+		{
+			if (AutoSampleTimerCallbackFuncSign)
+			{
+				return;
+			}
+			if (StateManager.ArduinoState.IsBusy == true)
+			{
+				return;
+			}
+			AutoSampleTimerCallbackFuncSign = true;
+			FormMain.GetInstance().SampleThreadFunc(null);
+			AutoSampleTimerCallbackFuncSign = false;
+
+		}
 	}
 }

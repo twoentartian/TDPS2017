@@ -146,14 +146,32 @@ namespace TDPS_Release_V1._0
 							ms.Write(bits, 0, r);
 							size += r;
 						}
-						System.Drawing.Image img = System.Drawing.Image.FromStream(ms);
+						System.Drawing.Image img;
+						try
+						{
+							img = System.Drawing.Image.FromStream(ms);
+						}
+						catch (Exception e)
+						{
+							InterNetwork.GetInstance().AcquirePicture();
+							continue;
+						}
+
 						TcpIpFileManager.GetInstance().AddTempFile(img);
 					}
-					else if (items[0] == "Arduino")
+					else if (items[0] == "Motor")
 					{
 						if (items[1] == "Finished")
 						{
 							StateManager.ArduinoState.IsBusy = false;
+						}
+						else if (items[1] == "GetCommand")
+						{
+							
+						}
+						else
+						{
+							throw new NotImplementedException();
 						}
 					}
 					else

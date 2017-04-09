@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TimerManagerNamespace;
 
 namespace TDPS_Release_V1._0
 {
@@ -22,6 +23,11 @@ namespace TDPS_Release_V1._0
 					FormMain.GetInstance().ChangeSampleButtonState(value);
 					FormMain.GetInstance().ChangeAutoSampleButtonState(value);
 					FormMain.GetInstance().WriteToConsole(value ? "Client connect." : "Client lost.");
+					if (AutoSampleState.IsOn)
+					{
+						AutoSampleState.IsOn = false;
+					}
+
 				}
 			}
 		}
@@ -52,6 +58,35 @@ namespace TDPS_Release_V1._0
 			}
 
 
+		}
+
+		public static class AutoSampleState
+		{
+			private static bool _isOn = false;
+
+			private static Guid TimerGuid = Guid.Empty;
+
+			public static bool IsOn
+			{
+				get { return _isOn; }
+
+				set
+				{
+					_isOn = value;
+					TimerManager tempTimerManager = TimerManager.GetInstance();
+					if (value)
+					{
+						TimerGuid = tempTimerManager.AddTimer(Tdps.AutoSampleTimerCallback, null, 0, 1500);
+						FormMain.GetInstance().ChangeAutoSampleButtonText("Auto Sample: on");
+					}
+					else
+					{
+						tempTimerManager.StopTimer(TimerGuid);
+						FormMain.GetInstance().ChangeAutoSampleButtonText("Auto Sample: off");
+					}
+
+				}
+			}
 		}
 	}
 }

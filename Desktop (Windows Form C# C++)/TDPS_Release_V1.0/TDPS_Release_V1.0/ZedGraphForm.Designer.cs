@@ -35,7 +35,7 @@
 			// 
 			// zedGraphTable
 			// 
-			this.zedGraphTable.Location = new System.Drawing.Point(12, 38);
+			this.zedGraphTable.Location = new System.Drawing.Point(12, 41);
 			this.zedGraphTable.Name = "zedGraphTable";
 			this.zedGraphTable.ScrollGrace = 0D;
 			this.zedGraphTable.ScrollMaxX = 0D;
@@ -44,25 +44,26 @@
 			this.zedGraphTable.ScrollMinX = 0D;
 			this.zedGraphTable.ScrollMinY = 0D;
 			this.zedGraphTable.ScrollMinY2 = 0D;
-			this.zedGraphTable.Size = new System.Drawing.Size(885, 390);
+			this.zedGraphTable.Size = new System.Drawing.Size(885, 423);
 			this.zedGraphTable.TabIndex = 0;
 			// 
 			// comboBoxDataSelect
 			// 
 			this.comboBoxDataSelect.FormattingEnabled = true;
-			this.comboBoxDataSelect.Location = new System.Drawing.Point(12, 12);
+			this.comboBoxDataSelect.Location = new System.Drawing.Point(12, 13);
 			this.comboBoxDataSelect.Name = "comboBoxDataSelect";
-			this.comboBoxDataSelect.Size = new System.Drawing.Size(885, 20);
+			this.comboBoxDataSelect.Size = new System.Drawing.Size(885, 21);
 			this.comboBoxDataSelect.TabIndex = 1;
 			this.comboBoxDataSelect.SelectedIndexChanged += new System.EventHandler(this.comboBoxDataSelect_SelectedIndexChanged);
 			// 
 			// ZedGraphForm
 			// 
-			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
+			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(909, 440);
+			this.ClientSize = new System.Drawing.Size(909, 477);
 			this.Controls.Add(this.comboBoxDataSelect);
 			this.Controls.Add(this.zedGraphTable);
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
 			this.Name = "ZedGraphForm";
 			this.Text = "ZedGraph";
 			this.ResumeLayout(false);

@@ -162,6 +162,7 @@
 			this.Controls.Add(this.textBoxMotorTime);
 			this.Controls.Add(this.textBoxSpeedMotorA);
 			this.Controls.Add(this.buttonSend);
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
 			this.Name = "FormArduinoControlPanel";
 			this.Text = "Arduino Control Panel";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormArduinoControlPanel_FormClosing);
