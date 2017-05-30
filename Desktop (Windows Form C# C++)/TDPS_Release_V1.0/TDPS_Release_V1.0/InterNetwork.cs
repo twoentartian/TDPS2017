@@ -132,6 +132,7 @@ namespace TDPS_Release_V1._0
 						break;
 					}
 					string[] items = data.Split(Separators, StringSplitOptions.RemoveEmptyEntries);
+					//Get Picture
 					if (items[0] == "Picture")
 					{
 						long contentLen = Convert.ToInt64(items[1]);
@@ -156,9 +157,9 @@ namespace TDPS_Release_V1._0
 							InterNetwork.GetInstance().AcquirePicture();
 							continue;
 						}
-
 						TcpIpFileManager.GetInstance().AddTempFile(img);
 					}
+					//Motor State Feedback
 					else if (items[0] == "Motor")
 					{
 						if (items[1] == "Finished")
@@ -167,7 +168,26 @@ namespace TDPS_Release_V1._0
 						}
 						else if (items[1] == "GetCommand")
 						{
-							
+							StateManager.ArduinoState.IsBusy = true;
+						}
+						else
+						{
+							throw new NotImplementedException();
+						}
+					}
+					//MPU data send back
+					else if (items[0] == "MPU")
+					{
+						if (items[1] == "Angle")
+						{
+							if (items[2] == "Z")
+							{
+								FormArduinoControlPanel.GetInstance().WriteToConsole("Z angle = " + items[3]);
+							}
+							else
+							{
+								throw new NotImplementedException();
+							}
 						}
 						else
 						{
@@ -178,8 +198,6 @@ namespace TDPS_Release_V1._0
 					{
 						throw new NotImplementedException();
 					}
-
-
 				}
 			}
 

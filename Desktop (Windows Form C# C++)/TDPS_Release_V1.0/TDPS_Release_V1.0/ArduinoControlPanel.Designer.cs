@@ -40,6 +40,9 @@
 			this.labelTime = new System.Windows.Forms.Label();
 			this.labelArduinoBusy = new System.Windows.Forms.Label();
 			this.textBoxArduinoConsole = new System.Windows.Forms.TextBox();
+			this.buttonAngle = new System.Windows.Forms.Button();
+			this.textBoxAngle = new System.Windows.Forms.TextBox();
+			this.buttonGetZAngle = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// buttonSend
@@ -145,11 +148,41 @@
 			this.textBoxArduinoConsole.Size = new System.Drawing.Size(244, 236);
 			this.textBoxArduinoConsole.TabIndex = 11;
 			// 
+			// buttonAngle
+			// 
+			this.buttonAngle.Location = new System.Drawing.Point(12, 242);
+			this.buttonAngle.Name = "buttonAngle";
+			this.buttonAngle.Size = new System.Drawing.Size(105, 23);
+			this.buttonAngle.TabIndex = 12;
+			this.buttonAngle.Text = "Turn An Angle";
+			this.buttonAngle.UseVisualStyleBackColor = true;
+			this.buttonAngle.Click += new System.EventHandler(this.buttonAngle_Click);
+			// 
+			// textBoxAngle
+			// 
+			this.textBoxAngle.Location = new System.Drawing.Point(123, 245);
+			this.textBoxAngle.Name = "textBoxAngle";
+			this.textBoxAngle.Size = new System.Drawing.Size(58, 20);
+			this.textBoxAngle.TabIndex = 13;
+			// 
+			// buttonGetZAngle
+			// 
+			this.buttonGetZAngle.Location = new System.Drawing.Point(12, 213);
+			this.buttonGetZAngle.Name = "buttonGetZAngle";
+			this.buttonGetZAngle.Size = new System.Drawing.Size(105, 23);
+			this.buttonGetZAngle.TabIndex = 14;
+			this.buttonGetZAngle.Text = "Get Z Angle";
+			this.buttonGetZAngle.UseVisualStyleBackColor = true;
+			this.buttonGetZAngle.Click += new System.EventHandler(this.buttonGetZAngle_Click);
+			// 
 			// FormArduinoControlPanel
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(591, 277);
+			this.Controls.Add(this.buttonGetZAngle);
+			this.Controls.Add(this.textBoxAngle);
+			this.Controls.Add(this.buttonAngle);
 			this.Controls.Add(this.textBoxArduinoConsole);
 			this.Controls.Add(this.labelArduinoBusy);
 			this.Controls.Add(this.labelTime);
@@ -185,5 +218,8 @@
 		private System.Windows.Forms.Label labelTime;
 		private System.Windows.Forms.Label labelArduinoBusy;
 		private System.Windows.Forms.TextBox textBoxArduinoConsole;
+		private System.Windows.Forms.Button buttonAngle;
+		private System.Windows.Forms.TextBox textBoxAngle;
+		private System.Windows.Forms.Button buttonGetZAngle;
 	}
 }

@@ -28,7 +28,7 @@ namespace Cs_Mono_RaspberryPi
 
 		public static readonly PictureSize pictureSize = new PictureSize (1280, 720);
 
-		public static readonly int fps = 15;
+		public static readonly int fps = 5;
 
 		#endregion
 
@@ -36,7 +36,7 @@ namespace Cs_Mono_RaspberryPi
 		{
 			#region Camera
 			RaspberryCamera tempCamera = RaspberryCamera.GetInstance ();
-			tempCamera.StartStreaming (Program.pictureSize, Program.fps);
+			tempCamera.StartStreaming(pictureSize,fps);
 			Console.WriteLine("Init Camera --- success");
 			#endregion
 
@@ -90,7 +90,6 @@ namespace Cs_Mono_RaspberryPi
 			}
 
 			Console.ReadLine();
-
 			tempCamera.StopStreaming ();
 			StateManager.GetInstance ().FindServer = false;
 			tempSerialManager.GetPort (RaspberrySerial.PortGuid).Serial.Dispose ();

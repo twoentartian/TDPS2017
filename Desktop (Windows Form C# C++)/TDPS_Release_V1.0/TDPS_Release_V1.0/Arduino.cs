@@ -37,6 +37,20 @@ namespace TDPS_Release_V1._0
 
 		#endregion
 
+		public void Send(string data)
+		{
+			if (StateManager.TcpState.IsClientConnected == true)
+			{
+				TcpManager tempTcpManager = TcpManager.GetInstance();
+				tempTcpManager.TcpServerSend(InterNetwork.GetInstance().GetRemoteClient(), data + Environment.NewLine);
+				StateManager.ArduinoState.IsBusy = true;
+			}
+			else
+			{
+				FormArduinoControlPanel.GetInstance().WriteToConsole("Error: No Client Connected !");
+			}
+		}
+
 		public void Send(MotorDirection dirA, int speedA, MotorDirection dirB, int speedB, int time)
 		{
 			if (StateManager.TcpState.IsClientConnected == true)

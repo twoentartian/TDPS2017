@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Text;
+using System.Windows.Markup;
 using Emgu.CV;
 using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
@@ -150,6 +151,83 @@ namespace TDPS_Release_V1._0
 		}
 	}
 
+	/// <summary>
+	/// Nine patches result. The first index is the x location (row), the second index is the y location (column).
+	/// </summary>
+	class NinePatchResult
+	{
+		public readonly float[,] Data;
+		public readonly bool[,] Patch;
+
+		public NinePatchResult(float[,] arg)
+		{
+			Data = arg;
+			Patch = new bool[3, 3];
+			float[] values = new float[9];
+			for (var x = 0; x < 3; x++)
+			{
+				for (var y = 0; y < 3; y++)
+				{
+					values[x * 3 + y] = arg[x, y];
+				}
+			}
+			Array.Sort(values);
+			for (int i = 8; i > 8-3; i--)
+			{
+				bool sign = false;
+				for (var x = 0; x < 3; x++)
+				{
+					for (var y = 0; y < 3; y++)
+					{
+						if (arg[x, y].Equals(values[i]))
+						{
+							Patch[x, y] = true;
+							sign = true;
+							break;
+						}
+					}
+					if (sign)
+					{
+						break;
+					}
+				}
+				if (!sign)
+				{
+					throw new LogicErrorException();
+				}
+			}
+		}
+	}
+
+	/// <summary>
+	/// Linear regression result.
+	/// </summary>
+	class LinearRegressionResult
+	{
+		public readonly float Slope;
+		public readonly long Count;
+
+		public LinearRegressionResult(float argSlope, long argCount)
+		{
+			Slope = argSlope;
+			Count = argCount;
+		}
+	}
+
+	/// <summary>
+	/// Color detect result. Powered by 史童舟: 1-green 2-blue 3-violet     -1--error
+	/// </summary>
+	class ColorDetectResult
+	{
+		public readonly float Result;
+
+		public ColorDetectResult(float argResult)
+		{
+			Result = argResult;
+		}
+	}
+
+
 	#endregion
 
 	/// <summary>
@@ -218,7 +296,7 @@ namespace TDPS_Release_V1._0
 		/// Detect basic elements (such as circlr, line, rectangle and triangle)
 		/// </summary>
 		/// <param name="argPath"></param>
-		/// <param name="argtMode"></param>
+		/// <param name="argMode"></param>
 		/// <returns></returns>
 		public static DetectBasicEleementResult DetectBasicElement(string argPath, DetectMode argMode)
 		{
@@ -584,6 +662,120 @@ namespace TDPS_Release_V1._0
 			return bestCannyTextureAnalysisResult;
 		}
 
+		/// <summary>
+		/// Generate nine patch result.
+		/// </summary>
+		/// <param name="argImage"></param>
+		/// <returns></returns>
+		public static NinePatchResult CalculateNinePatch(Image<Gray,Byte> argImage)
+		{
+			int[,] counter = new int[3, 3];
+			for (var x = 0; x < argImage.Width; x++)
+			{
+				for (var y = 0; y < argImage.Height; y++)
+				{
+					if (argImage.Data[y,x,0] == 255)
+					{
+						int index0 = 0, index1 = 0;
+						if (x < argImage.Width / 3)
+						{
+							index0 = 0;
+						}
+						else if (x < argImage.Width * 2 / 3)
+						{
+							index0 = 1;
+						}
+						else
+						{
+							index0 = 2;
+						}
+						if (x < argImage.Height / 3)
+						{
+							index1 = 0;
+						}
+						else if (x < argImage.Height * 2 / 3)
+						{
+							index1 = 1;
+						}
+						else
+						{
+							index1 = 2;
+						}
+						counter[index0, index1]++;
+					}
+				}
+			}
+			int counterAll = 0;
+			for (var x = 0; x < 3; x++)
+			{
+				for (var y = 0; y < 3; y++)
+				{
+					counterAll += counter[x, y];
+				}
+			}
+			float[,] result = new float[3, 3];
+			for (var x = 0; x < 3; x++)
+			{
+				for (var y = 0; y < 3; y++)
+				{
+					result[x, y] = (float) counter[x, y] / counterAll;
+				}
+			}
+			return new NinePatchResult(result);
+		}
+
+		/// <summary>
+		/// Calculate the linear regression slope
+		/// </summary>
+		/// <param name="argImage"></param>
+		/// <returns></returns>
+		public static LinearRegressionResult CalculateLinearRegression(Image<Gray, Byte> argImage)
+		{
+			long countX = 0, countY = 0, count = 0, countXY = 0, countSquareX = 0;
+			for (var x = 0; x < argImage.Width; x++)
+			{
+				for (var y = 0; y < argImage.Height; y++)
+				{
+					if (argImage.Data[y, x, 0] == 255)
+					{
+						countXY += x * y;
+						count++;
+						countX += x;
+						countY += y;
+						countSquareX += x * x;
+					}
+				}
+			}
+			float aveX = (float) countX / count;
+			float aveY = (float) countY / count;
+			float slope = (float) (countXY - count * aveX * aveY) / (countSquareX - count * aveX * aveX);
+			return new LinearRegressionResult(slope, count);
+		}
+
+		/// <summary>
+		/// Color detect function, powered by 史童舟.
+		/// </summary>
+		/// <param name="argImage"></param>
+		/// <returns></returns>
+		public static ColorDetectResult DetectColor(Image<Rgb, Byte> argImage)
+		{
+			argImage.ROI = Rectangle.FromLTRB(argImage.Width / 3, argImage.Height / 3, argImage.Width / 3 * 2,argImage.Height / 3 * 2);
+			Image<Hsv, float> hsvImage = new Image<Hsv, float>(argImage.Size);
+			Image<Rgb, float> floatRgbImage = new Image<Rgb, float>(argImage.Size);
+			CvInvoke.cvConvertScale(argImage, floatRgbImage, 1.0, 0);
+			CvInvoke.CvtColor(floatRgbImage, hsvImage, ColorConversion.Rgb2Hsv);
+
+			float counter = 0;
+			for (int x = 0; x < hsvImage.Width; x++)
+			{
+				for (int y = 0; y < hsvImage.Height; y++)
+				{
+					counter += hsvImage.Data[y, x, 0];
+				}
+			}
+			float ave = counter / hsvImage.Width / hsvImage.Height;
+			return new ColorDetectResult(ave);
+		}
 		#endregion
 	}
 }

@@ -71,7 +71,12 @@ namespace TDPS_Release_V1._0
 
 		#region Button
 
-		private void buttonArduino_Click(object sender, EventArgs e)
+		private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			Environment.Exit(0);
+		}
+
+		private void arduinoControlPanelToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			FormArduinoControlPanel.GetInstance().Show();
 		}
@@ -82,7 +87,7 @@ namespace TDPS_Release_V1._0
 			sampleThread.Start();
 		}
 
-		public void SampleThreadFunc(object obj)
+		public void SampleThreadFunc()
 		{
 			if (StateManager.TcpState.IsClientConnected)
 			{
@@ -104,9 +109,8 @@ namespace TDPS_Release_V1._0
 				}
 			}
 			//When the file is ready
-			Tdps.T1G1();
-			TcpIpFileManager.GetInstance().IsFileFresh = false;
-
+			Image<Rgb, Byte> rawImage = new Image<Rgb, byte>((Bitmap)TcpIpFileManager.GetInstance().NowImage);
+			WriteToPictureRaw(rawImage);
 
 
 
@@ -161,6 +165,22 @@ namespace TDPS_Release_V1._0
 		#endregion
 
 		#region Picturebox
+
+		public Size GetPictureRawSize()
+		{
+			return pictureBoxRaw.Size;
+		}
+
+		public Size GetPicture1Size()
+		{
+			return pictureBoxOutput1.Size;
+		}
+
+		public Size GetPicture2Size()
+		{
+			return pictureBoxOutput2.Size;
+		}
+
 		//RGB
 		public delegate void WriteToPictureBoxRgbHandler(Image<Rgb, Byte> image);
 		public void WriteToPictureRaw(Image<Rgb, Byte> image)
@@ -284,8 +304,111 @@ namespace TDPS_Release_V1._0
 			}
 		}
 
+
+
 		#endregion
 
 
+		#region TDPS_TASK
+
+		private void Menu_Ground1_Task1_Click(object sender, EventArgs e)
+		{
+			Thread g1T1Thread = new Thread(G1T1ThreadFunc) {IsBackground = true};
+			g1T1Thread.Start();
+		}
+
+		private void G1T1ThreadFunc()
+		{
+			WriteToConsole("Ground 1 Task 1 begins to execute !");
+			while (true)
+			{
+				SampleThreadFunc();
+				Tdps.T1G1();
+				TcpIpFileManager.GetInstance().IsFileFresh = false;
+				while (StateManager.ArduinoState.IsBusy)
+				{
+					Thread.Sleep(100);
+				}
+				if (Tdps.IsT1G1End())
+				{
+					break;
+				}
+			}
+			WriteToConsole("Ground 1 Task 1 finished !");
+		}
+
+		private void Menu_Ground1_Task2_Click(object sender, EventArgs e)
+		{
+			Thread g1T2Thread = new Thread(G1T2ThreadFunc) { IsBackground = true };
+			g1T2Thread.Start();
+		}
+
+		private void G1T2ThreadFunc()
+		{
+			WriteToConsole("Ground 1 Task 2 begins to execute !");
+			while (true)
+			{
+				SampleThreadFunc();
+
+				if (Tdps.IsT1G2End())
+				{
+					break;
+				}
+			}
+			WriteToConsole("Ground 1 Task 2 finished !");
+		}
+
+		private void Menu_Ground2_Task1_Click(object sender, EventArgs e)
+		{
+			Thread g2T1Thread = new Thread(G2T1ThreadFunc) { IsBackground = true };
+			g2T1Thread.Start();
+		}
+
+		private void G2T1ThreadFunc()
+		{
+			WriteToConsole("Ground 2 Task 1 begins to execute !");
+			while (true)
+			{
+				SampleThreadFunc();
+
+				if (Tdps.IsT2G1End())
+				{
+					break;
+				}
+			}
+			WriteToConsole("Ground 2 Task 1 finished !");
+		}
+
+		private void Menu_Ground2_Task2_Click(object sender, EventArgs e)
+		{
+			Thread g2T2Thread = new Thread(G2T2ThreadFunc) { IsBackground = true };
+			g2T2Thread.Start();
+		}
+
+		private void G2T2ThreadFunc()
+		{
+			WriteToConsole("Ground 2 Task 2 begins to execute !");
+			while (true)
+			{
+				SampleThreadFunc();
+
+				if (Tdps.IsT2G2End())
+				{
+					break;
+				}
+			}
+			WriteToConsole("Ground 2 Task 2 finished !");
+
+		}
+
+		#endregion
+
+		private void debug1ToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			//Image<Gray,byte> debugImage = new Image<Gray, byte>("1.jpg");
+			//ImageViewerManager.Instance().ShowPicture(debugImage);
+			ColorDetectResult result = Cv.DetectColor(new Image<Rgb, byte>("4.jpg"));
+
+		}
 	}
 }

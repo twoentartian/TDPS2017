@@ -367,7 +367,7 @@
               <MiscControls>--gnu --no_rtti </MiscControls>
               <Define>__CORTEX_M3,  ARM_MATH_CM3,  MBED_BUILD_TIMESTAMP=1443684959.39,  TARGET_CORTEX_M,  TARGET_LPC176X,  TARGET_NXP,  TARGET_MBED_LPC1768,  __MBED__=1,  TARGET_LPC1768,  TARGET_M3,  TOOLCHAIN_ARM,  TOOLCHAIN_ARM_STD,  __ASSERT_MSG,</Define>
               <Undefine></Undefine>
-              <IncludePath>.;mbed;mbed/TARGET_LPC1768;mbed/TARGET_LPC1768/TOOLCHAIN_ARM_STD;mbed/TARGET_LPC1768/TARGET_NXP;mbed/TARGET_LPC1768/TARGET_NXP/TARGET_LPC176X;mbed/TARGET_LPC1768/TARGET_NXP/TARGET_LPC176X/TARGET_MBED_LPC1768</IncludePath>
+              <IncludePath>.;mbed;mbed/TARGET_LPC1768;mbed/TARGET_LPC1768/TOOLCHAIN_ARM_STD;mbed/TARGET_LPC1768/TARGET_NXP;mbed/TARGET_LPC1768/TARGET_NXP/TARGET_LPC176X;mbed/TARGET_LPC1768/TARGET_NXP/TARGET_LPC176X/TARGET_MBED_LPC1768;.\PID</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -430,6 +430,11 @@
               <FileName>main.cpp</FileName>
               <FileType>8</FileType>
               <FilePath>main.cpp</FilePath>
+            </File>
+            <File>
+              <FileName>PID.cpp</FileName>
+              <FileType>8</FileType>
+              <FilePath>.\PID\PID.cpp</FilePath>
             </File>
           </Files>
         </Group>

@@ -76,7 +76,7 @@ namespace TDPS_Release_V1._0
 					TimerManager tempTimerManager = TimerManager.GetInstance();
 					if (value)
 					{
-						TimerGuid = tempTimerManager.AddTimer(Tdps.AutoSampleTimerCallback, null, 0, 1500);
+						TimerGuid = tempTimerManager.AddTimer(Tdps.AutoSampleTimerCallback, null, 0, 1000);
 						FormMain.GetInstance().ChangeAutoSampleButtonText("Auto Sample: on");
 					}
 					else

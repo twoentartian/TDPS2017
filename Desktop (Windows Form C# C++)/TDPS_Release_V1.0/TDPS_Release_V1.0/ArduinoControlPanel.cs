@@ -148,5 +148,52 @@ namespace TDPS_Release_V1._0
 			Arduino.GetInstance().Send(dirA, speedA, dirB, speedB, time);
 		}
 
+		private void buttonAngle_Click(object sender, EventArgs e)
+		{
+			Int16 angle;
+			try
+			{
+				angle = Convert.ToInt16(textBoxAngle.Text);
+			}
+			catch (FormatException)
+			{
+				WriteToConsole("Invaild Format !");
+				return;
+			}
+			if (angle > 180 || angle < -180)
+			{
+				WriteToConsole("Invaild Value !");
+				return;
+			}
+			angle = (short)(angle * 32768 / 180);
+
+			byte[] dataBytes = new byte[4];
+			dataBytes[0] = 0x03;
+			dataBytes[1] = (byte)(angle/256);
+			dataBytes[2] = (byte) (angle % 256);
+			dataBytes[3] = 0xff;
+			string dataStringCore = string.Empty;
+			foreach (var b in dataBytes)
+			{
+				dataStringCore = dataStringCore + Convert.ToString(b) + "#";
+			}
+			string dataString = "TOMC#" + dataStringCore;
+			Arduino.GetInstance().Send(dataString);
+
+		}
+
+		private void buttonGetZAngle_Click(object sender, EventArgs e)
+		{
+			byte[] dataBytes = new byte[2];
+			dataBytes[0] = 0x04;
+			dataBytes[1] = 0xff;
+			string dataStringCore = string.Empty;
+			foreach (var b in dataBytes)
+			{
+				dataStringCore = dataStringCore + Convert.ToString(b) + "#";
+			}
+			string dataString = "TOMC#" + dataStringCore;
+			Arduino.GetInstance().Send(dataString);
+		}
 	}
 }

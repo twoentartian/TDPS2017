@@ -42,13 +42,15 @@ namespace Cs_Mono_RaspberryPi
 				string[] items = data.Split (seperators, StringSplitOptions.RemoveEmptyEntries);
 				if(items[0] == "PC")
 				{
-					UdpManager tempUdpManager = UdpManager.GetInstance ();
-					for (int i = 1; i < items.Length; i ++)
+					string dataToPc = string.Empty;
+					for (int i =1; i < items.Length; i++)
 					{
-						tempUdpManager.Send (IPAddress.Broadcast, InterNetwork.RemotePort, items [i]);
-						tempUdpManager.Send (IPAddress.Broadcast, InterNetwork.RemotePort, seperators[0]);
+						if (!items [i].Contains ("\r"))
+						{
+							dataToPc += items [i] + seperators [0];
+						}
 					}
-					tempUdpManager.Send (IPAddress.Broadcast, InterNetwork.RemotePort, Environment.NewLine);
+					TcpManager.GetInstance ().TcpClientSend (dataToPc + Environment.NewLine);
 				}
 				else
 				{

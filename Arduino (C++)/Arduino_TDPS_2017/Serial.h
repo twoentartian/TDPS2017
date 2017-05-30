@@ -2,7 +2,7 @@
 //	Flush buffer after every pack acquiring
 //	Format:
 //			|->	Motor		0x01 (1 byte)	A motor (2 byte)						B motor (2 bytes)						Time	(2 bytes)			0xFF (1 byte)
-//						|->		Start Sign			0x00 0x01(Direction) PWM		0x00 0x01(Direction) PWM										End sign
+//						|->		Start Sign			0x00 0x01(Direction PWM)		0x00 0x01(Direction PWM)										End sign
 //
 //	Motor moves only when both of them get their packs.
 #pragma once

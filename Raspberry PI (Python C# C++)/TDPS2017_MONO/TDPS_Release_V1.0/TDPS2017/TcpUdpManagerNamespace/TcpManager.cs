@@ -38,7 +38,8 @@ namespace TcpUdpManagerNamespace
 
 		#region Property
 
-		public delegate void ListenTaskDelegate(byte[] argBytes);
+		public delegate void ListenTaskDelegate (byte[] argBytes);
+		public delegate void ServerLostDelegate ();
 
 		private string _hostName;
 		//public string HostName => _hostName;
@@ -152,6 +153,8 @@ namespace TcpUdpManagerNamespace
 
 		private const int MaxClient = 10;
 		private readonly TcpClientWithGuid[] _tcpClientArray = new TcpClientWithGuid[MaxClient];
+
+		public ServerLostDelegate ServerLostHandler;
 
 		private class TcpClientWithGuid
 		{
@@ -291,7 +294,6 @@ namespace TcpUdpManagerNamespace
 				}
 				else
 				{
-					//TODO: Write the message execute code
 					_tcpServerReceiveDelegate(Encoding.ASCII.GetBytes(result));
 				}
 			}
@@ -596,7 +598,14 @@ namespace TcpUdpManagerNamespace
 				//TODO: Add delegate
 				_tcpClientReceiveDelegate(Encoding.ASCII.GetBytes(message));
 			}
+			sr.Close ();
+			sr.Dispose ();
+			ns.Close ();
 			ns.Dispose();
+			if (ServerLostHandler != null)
+			{
+				ServerLostHandler ();
+			}
 		}
 
 		/// <summary>

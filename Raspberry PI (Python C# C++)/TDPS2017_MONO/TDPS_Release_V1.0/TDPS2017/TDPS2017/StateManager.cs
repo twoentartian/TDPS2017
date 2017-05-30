@@ -28,24 +28,19 @@ namespace Cs_Mono_RaspberryPi
 		#region NetworkState
 
 		private bool _findServer = false;
-		private Guid _timerGuid = Guid.Empty;
 		public bool FindServer
 		{
 			get { return _findServer; }
 			set
 			{
 				_findServer = value;
-				TimerManager tempTimerManager = TimerManager.GetInstance();
-
 				if (value)
 				{
 					Console.WriteLine("Find Server");
-					_timerGuid = tempTimerManager.AddTimer(InterNetwork.SendPictureTimerCallback, null, 0, 1000/Program.fps);
 				}
 				else
 				{
 					Console.WriteLine("Lost Server");
-					tempTimerManager.StopTimer(_timerGuid);
 				}
 			}
 		}

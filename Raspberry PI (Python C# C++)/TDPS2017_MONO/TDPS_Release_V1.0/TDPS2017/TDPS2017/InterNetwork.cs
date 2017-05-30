@@ -27,18 +27,48 @@ namespace Cs_Mono_RaspberryPi
 			string dataString = Encoding.ASCII.GetString(data);
 			string[] itemStrings = dataString.Split(Program.SeparatorStrings, StringSplitOptions.RemoveEmptyEntries);
 
-			if (itemStrings[0] == "Server")
+			if (itemStrings [0] == "Server")
 			{
-				StateManager tempStateManager = StateManager.GetInstance();
+				StateManager tempStateManager = StateManager.GetInstance ();
 				if (!tempStateManager.FindServer)
 				{
-					TcpManager tempTcpManager = TcpManager.GetInstance();
-					tempTcpManager.InitTcpClient(new IPEndPoint(IPAddress.Parse(itemStrings[1]), Convert.ToInt32(itemStrings[2])), TcpListenTaskDelegate);
+					TcpManager tempTcpManager = TcpManager.GetInstance ();
+					tempTcpManager.InitTcpClient (new IPEndPoint (IPAddress.Parse (itemStrings [1]), Convert.ToInt32 (itemStrings [2])), TcpListenTaskDelegate);
+					tempTcpManager.ServerLostHandler = LostServer;
 					tempTcpManager.HostTcpClient.SendBufferSize = 10000000;
 					tempStateManager.FindServer = true;
 				}
 			}
-			else if (itemStrings[0] == "Motor")
+			else
+			{
+				throw new NotImplementedException ();
+			}
+		}
+
+		#endregion
+
+		#region TCP
+		private static int PackLength = 20480;
+
+		public const string Separator = "#";
+		public static string[] Separators = {Separator};
+
+		public static TcpManager.ListenTaskDelegate TcpListenTaskDelegate = TcpListenTask;
+
+		public static void LostServer()
+		{
+			StateManager.GetInstance ().FindServer = false;
+		}
+
+		/// <summary>
+		/// If TCP client receive data from server
+		/// </summary>
+		/// <param name="data"></param>
+		private static void TcpListenTask(byte[] data)
+		{
+			string dataStr = Encoding.ASCII.GetString (data);
+			string[] itemStrings = dataStr.Split (Separators, StringSplitOptions.RemoveEmptyEntries);
+			if (itemStrings[0] == "Motor")
 			{
 				SerialManager tempSerialManager = SerialManager.GetInstance();
 				SerialManager.SerialPortWithGuid port = tempSerialManager.GetPort(RaspberrySerial.PortGuid);
@@ -55,58 +85,26 @@ namespace Cs_Mono_RaspberryPi
 				serialBytes[7] = 0xFF;
 				port.Send(serialBytes);
 			}
+			else if(itemStrings[0] == "AcquirePicture")
+			{
+				SendPicture ();
+			}
 			else
 			{
-				throw new LogicErrorException("Not implementate");
+				throw new NotImplementedException ();
 			}
 		}
 
-		#endregion
-
-		#region TCP
-		private static int PackLength = 4096;
-
-		public static TcpManager.ListenTaskDelegate TcpListenTaskDelegate = TcpListenTask;
-
-		/// <summary>
-		/// If TCP client receive data from server
-		/// </summary>
-		/// <param name="data"></param>
-		private static void TcpListenTask(byte[] data)
+		private static void SendPicture()
 		{
-			throw new NotImplementedException ();
-		}
-
-		public static TimerCallback SendPictureTimerCallback = SendPictureTimerCallbackFunc;
-		private static bool _sendPictureTimerCallbackFuncRunSign = false;
-		private static void SendPictureTimerCallbackFunc(object state)
-		{
-			if (_sendPictureTimerCallbackFuncRunSign)
-			{
-				return;
-			}
-			_sendPictureTimerCallbackFuncRunSign = true;
-
-			RaspberryCamera tempCamera = RaspberryCamera.GetInstance ();
-			byte[] imgData = tempCamera.GetPictureFromStreaming ();
-
+			byte[] imgData = RaspberryCamera.imgData;
 			StateManager tempStateManager = StateManager.GetInstance();
 			TcpManager tempTcpManager = TcpManager.GetInstance();
-			try
-			{
-				tempTcpManager.HostTcpClient.Client.Send(BitConverter.GetBytes(1L));
-			}
-			catch (Exception e)
-			{
-				Console.WriteLine(e);
-				_sendPictureTimerCallbackFuncRunSign = false;
-				tempStateManager.FindServer = false;
-				return;
-			}
 			long contentLen = imgData.LongLength;
 			try
 			{
-				tempTcpManager.HostTcpClient.Client.Send(BitConverter.GetBytes(contentLen));
+				tempTcpManager.TcpClientSend(Separator+"Picture"+Separator+contentLen+Separator+"\r\n");
+
 				for(long packNumber = 0; packNumber < imgData.LongLength/PackLength; packNumber++)
 				{
 					byte[] pack = new byte[PackLength];
@@ -129,11 +127,9 @@ namespace Cs_Mono_RaspberryPi
 			catch (Exception e)
 			{
 				Console.WriteLine(e);
-				_sendPictureTimerCallbackFuncRunSign = false;
 				tempStateManager.FindServer = false;
 				return;
 			}
-			_sendPictureTimerCallbackFuncRunSign = false;
 		}
 
 		#endregion
