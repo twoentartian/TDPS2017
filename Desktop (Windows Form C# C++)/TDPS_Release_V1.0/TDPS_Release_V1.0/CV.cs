@@ -330,7 +330,7 @@ namespace TDPS_Release_V1._0
 				Math.PI / 45.0, //Angle resolution measured in radians.
 				20, //threshold
 				30, //min Line width
-				10); //gap between lines
+				50); //gap between lines
 			return new DetectLineResult(lines);
 
 		}

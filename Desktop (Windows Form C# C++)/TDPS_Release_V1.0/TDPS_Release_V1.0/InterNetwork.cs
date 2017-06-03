@@ -194,6 +194,13 @@ namespace TDPS_Release_V1._0
 							throw new NotImplementedException();
 						}
 					}
+					//Get Distance Result
+					else if (items[0] == "DISTANCE")
+					{
+						FormArduinoControlPanel.GetInstance().WriteToConsole("Distance = " + items[1]);
+						Arduino.GetInstance().SonicDistance = Convert.ToSingle(items[1]);
+					}
+					//ELSE
 					else
 					{
 						throw new NotImplementedException();

@@ -46,8 +46,10 @@
 			this.ground1Task2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.Menu_Ground2_Task1 = new System.Windows.Forms.ToolStripMenuItem();
 			this.Menu_Ground2_Task2 = new System.Windows.Forms.ToolStripMenuItem();
+			this.Menu_Ground2_Task3 = new System.Windows.Forms.ToolStripMenuItem();
 			this.debugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
 			this.debug1ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.buttonFinalSign = new System.Windows.Forms.Button();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBoxRaw)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBoxOutput1)).BeginInit();
 			((System.ComponentModel.ISupportInitialize)(this.pictureBoxOutput2)).BeginInit();
@@ -171,7 +173,7 @@
             this.Menu_Ground1_Task1,
             this.Menu_Ground1_Task2});
 			this.groundToolStripMenuItem.Name = "groundToolStripMenuItem";
-			this.groundToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.groundToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
 			this.groundToolStripMenuItem.Text = "Ground 1";
 			// 
 			// Menu_Ground1_Task1
@@ -192,9 +194,10 @@
 			// 
 			this.ground1Task2ToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.Menu_Ground2_Task1,
-            this.Menu_Ground2_Task2});
+            this.Menu_Ground2_Task2,
+            this.Menu_Ground2_Task3});
 			this.ground1Task2ToolStripMenuItem.Name = "ground1Task2ToolStripMenuItem";
-			this.ground1Task2ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.ground1Task2ToolStripMenuItem.Size = new System.Drawing.Size(123, 22);
 			this.ground1Task2ToolStripMenuItem.Text = "Ground 2";
 			// 
 			// Menu_Ground2_Task1
@@ -211,6 +214,13 @@
 			this.Menu_Ground2_Task2.Text = "Task 2";
 			this.Menu_Ground2_Task2.Click += new System.EventHandler(this.Menu_Ground2_Task2_Click);
 			// 
+			// Menu_Ground2_Task3
+			// 
+			this.Menu_Ground2_Task3.Name = "Menu_Ground2_Task3";
+			this.Menu_Ground2_Task3.Size = new System.Drawing.Size(106, 22);
+			this.Menu_Ground2_Task3.Text = "Task 3";
+			this.Menu_Ground2_Task3.Click += new System.EventHandler(this.Menu_Ground2_Task3_Click);
+			// 
 			// debugToolStripMenuItem
 			// 
 			this.debugToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -222,15 +232,26 @@
 			// debug1ToolStripMenuItem
 			// 
 			this.debug1ToolStripMenuItem.Name = "debug1ToolStripMenuItem";
-			this.debug1ToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+			this.debug1ToolStripMenuItem.Size = new System.Drawing.Size(115, 22);
 			this.debug1ToolStripMenuItem.Text = "Debug1";
 			this.debug1ToolStripMenuItem.Click += new System.EventHandler(this.debug1ToolStripMenuItem_Click);
+			// 
+			// buttonFinalSign
+			// 
+			this.buttonFinalSign.Location = new System.Drawing.Point(12, 278);
+			this.buttonFinalSign.Name = "buttonFinalSign";
+			this.buttonFinalSign.Size = new System.Drawing.Size(203, 23);
+			this.buttonFinalSign.TabIndex = 8;
+			this.buttonFinalSign.Text = "Final Sign: false";
+			this.buttonFinalSign.UseVisualStyleBackColor = true;
+			this.buttonFinalSign.Click += new System.EventHandler(this.buttonFinalSign_Click);
 			// 
 			// FormMain
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
 			this.ClientSize = new System.Drawing.Size(1443, 587);
+			this.Controls.Add(this.buttonFinalSign);
 			this.Controls.Add(this.buttonAutoSample);
 			this.Controls.Add(this.buttonSample);
 			this.Controls.Add(this.textBoxConsole);
@@ -276,6 +297,8 @@
 		private System.Windows.Forms.ToolStripMenuItem Menu_Ground2_Task2;
 		private System.Windows.Forms.ToolStripMenuItem debugToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem debug1ToolStripMenuItem;
+		private System.Windows.Forms.ToolStripMenuItem Menu_Ground2_Task3;
+		private System.Windows.Forms.Button buttonFinalSign;
 	}
 }
 

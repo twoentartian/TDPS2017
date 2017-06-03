@@ -57,7 +57,26 @@ namespace TDPS_Release_V1._0
 				}
 			}
 
+			private static bool _isFanOpen = false;
 
+			public static bool IsFanOpen
+			{
+				get { return _isFanOpen; }
+
+				set
+				{
+					_isFanOpen = value;
+					if (value)
+					{
+
+					}
+					else
+					{
+
+					}
+
+				}
+			}
 		}
 
 		public static class AutoSampleState

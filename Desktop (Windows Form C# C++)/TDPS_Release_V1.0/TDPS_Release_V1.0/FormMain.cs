@@ -59,6 +59,7 @@ namespace TDPS_Release_V1._0
 		{
 			InterNetwork.GetInstance().Init();
 			StateManager.TcpState.IsClientConnected = false;
+			FormArduinoControlPanel.GetInstance().Show();
 		}
 
 		private void FormMain_FormClosing(object sender, FormClosingEventArgs e)
@@ -317,7 +318,7 @@ namespace TDPS_Release_V1._0
 			g1T1Thread.Start();
 		}
 
-		private void G1T1ThreadFunc()
+		public void G1T1ThreadFunc()
 		{
 			WriteToConsole("Ground 1 Task 1 begins to execute !");
 			while (true)
@@ -349,8 +350,15 @@ namespace TDPS_Release_V1._0
 			while (true)
 			{
 				SampleThreadFunc();
-
-				if (Tdps.IsT1G2End())
+				TcpIpFileManager.GetInstance().IsFileFresh = false;
+				SampleThreadFunc();
+				Tdps.T2G1();
+				TcpIpFileManager.GetInstance().IsFileFresh = false;
+				while (StateManager.ArduinoState.IsBusy)
+				{
+					Thread.Sleep(100);
+				}
+				if (Tdps.IsT2G1End())
 				{
 					break;
 				}
@@ -369,9 +377,9 @@ namespace TDPS_Release_V1._0
 			WriteToConsole("Ground 2 Task 1 begins to execute !");
 			while (true)
 			{
-				SampleThreadFunc();
+				Tdps.T1G2();
 
-				if (Tdps.IsT2G1End())
+				if (Tdps.IsT1G2End())
 				{
 					break;
 				}
@@ -390,7 +398,7 @@ namespace TDPS_Release_V1._0
 			WriteToConsole("Ground 2 Task 2 begins to execute !");
 			while (true)
 			{
-				SampleThreadFunc();
+				Tdps.T2G2();
 
 				if (Tdps.IsT2G2End())
 				{
@@ -401,14 +409,50 @@ namespace TDPS_Release_V1._0
 
 		}
 
+		private void Menu_Ground2_Task3_Click(object sender, EventArgs e)
+		{
+			Thread g2T3Thread = new Thread(G2T3ThreadFunc) { IsBackground = true };
+			g2T3Thread.Start();
+		}
+
+		private void G2T3ThreadFunc()
+		{
+			WriteToConsole("Ground 2 Task 3 begins to execute !");
+			while (true)
+			{
+				Tdps.T3G2();
+
+				if (Tdps.IsT3G2End())
+				{
+					break;
+				}
+			}
+			WriteToConsole("Ground 2 Task 3 finished !");
+		}
+
 		#endregion
 
 		private void debug1ToolStripMenuItem_Click(object sender, EventArgs e)
 		{
 			//Image<Gray,byte> debugImage = new Image<Gray, byte>("1.jpg");
 			//ImageViewerManager.Instance().ShowPicture(debugImage);
-			ColorDetectResult result = Cv.DetectColor(new Image<Rgb, byte>("4.jpg"));
+			SampleThreadFunc();
+			ColorDetectResult result = Cv.DetectColor(new Image<Rgb, byte>(TcpIpFileManager.GetInstance().FilePath));
+			TcpIpFileManager.GetInstance().IsFileFresh = false;
+			WriteToConsole("Color Det= " + result.Result);
+		}
 
+		private void buttonFinalSign_Click(object sender, EventArgs e)
+		{
+			Tdps.FinalSign = !Tdps.FinalSign;
+			if (Tdps.FinalSign)
+			{
+				buttonFinalSign.Text = "Final Sign: true";
+			}
+			else
+			{
+				buttonFinalSign.Text = "Final Sign: false";
+			}
 		}
 	}
 }

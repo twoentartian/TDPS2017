@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -160,40 +161,74 @@ namespace TDPS_Release_V1._0
 				WriteToConsole("Invaild Format !");
 				return;
 			}
-			if (angle > 180 || angle < -180)
-			{
-				WriteToConsole("Invaild Value !");
-				return;
-			}
-			angle = (short)(angle * 32768 / 180);
-
-			byte[] dataBytes = new byte[4];
-			dataBytes[0] = 0x03;
-			dataBytes[1] = (byte)(angle/256);
-			dataBytes[2] = (byte) (angle % 256);
-			dataBytes[3] = 0xff;
-			string dataStringCore = string.Empty;
-			foreach (var b in dataBytes)
-			{
-				dataStringCore = dataStringCore + Convert.ToString(b) + "#";
-			}
-			string dataString = "TOMC#" + dataStringCore;
-			Arduino.GetInstance().Send(dataString);
-
+			Arduino.GetInstance().PidTurn(angle);
 		}
 
 		private void buttonGetZAngle_Click(object sender, EventArgs e)
 		{
-			byte[] dataBytes = new byte[2];
-			dataBytes[0] = 0x04;
-			dataBytes[1] = 0xff;
-			string dataStringCore = string.Empty;
-			foreach (var b in dataBytes)
+			Arduino.GetInstance().GetZAngle();
+		}
+
+		private void buttonGetDis_Click(object sender, EventArgs e)
+		{
+			Arduino.GetInstance().GetDistance();
+		}
+
+		private void buttonGoStraight_Click(object sender, EventArgs e)
+		{
+			short loop;
+			try
 			{
-				dataStringCore = dataStringCore + Convert.ToString(b) + "#";
+				loop = Convert.ToInt16(textBoxGoStraightLoop.Text);
 			}
-			string dataString = "TOMC#" + dataStringCore;
-			Arduino.GetInstance().Send(dataString);
+			catch (FormatException)
+			{
+				WriteToConsole("Invaild Format !");
+				return;
+			}
+
+			Arduino.GetInstance().GoStraight(loop);
+			StateManager.ArduinoState.IsBusy = true;
+		}
+
+		private void buttonFan_Click(object sender, EventArgs e)
+		{
+			if (StateManager.ArduinoState.IsFanOpen)
+			{
+				Arduino.GetInstance().FanControl(false);
+				buttonFan.Text = "Fan: OFF";
+			}
+			else
+			{
+				Arduino.GetInstance().FanControl(true);
+				buttonFan.Text = "Fan: ON";
+			}
+			StateManager.ArduinoState.IsFanOpen = !StateManager.ArduinoState.IsFanOpen;
+		}
+
+		private void buttonHc12Test_Click(object sender, EventArgs e)
+		{
+			for (int i = 0; i < 5; i++)
+			{
+				var currentTime = DateTime.Now;
+				Arduino.GetInstance().Hc12Send(currentTime.Year + "-");
+				Thread.Sleep(100);
+				Arduino.GetInstance().Hc12Send(currentTime.Month + "-");
+				Thread.Sleep(100);
+				Arduino.GetInstance().Hc12Send(currentTime.Day + "-");
+				Thread.Sleep(100);
+				Arduino.GetInstance().Hc12Send(currentTime.Hour + "-");
+				Thread.Sleep(100);
+				Arduino.GetInstance().Hc12Send(currentTime.Minute + "-");
+				Thread.Sleep(100);
+				Arduino.GetInstance().Hc12Send(currentTime.Second + "\n");
+				Thread.Sleep(100);
+				Arduino.GetInstance().Hc12Send("Meepo");
+				Thread.Sleep(100);
+				Arduino.GetInstance().Hc12Send("No 03\n");
+
+				Thread.Sleep(300);
+			}
 		}
 	}
 }
